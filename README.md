@@ -1,9 +1,6 @@
 # keepkey.js 
 
-**Internal 1.1.2**
-
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![Travis](https://img.shields.io/travis/alexjoverm/typescript-library-starter.svg)](https://travis-ci.org/alexjoverm/typescript-library-starter)
 [![Coveralls](https://img.shields.io/coveralls/keepkey/keepkey.js.svg)](https://coveralls.io/github/keepkey/keepkey.js)
 [![Dev Dependencies](https://david-dm.org/keepkey/keepkey.js/dev-status.svg)](https://david-dm.org/keepkey/keepkey.js?type=dev)
 
