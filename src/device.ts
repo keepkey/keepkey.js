@@ -32,7 +32,7 @@ export default abstract class Device {
       interface: this.interface
     }))
     const [responseTypeEnum, responseMsg] = await this.sendRaw(msgTypeEnum, msg)
-    this.events.emit(String(msgTypeEnum), makeEvent({
+    this.events.emit(String(responseTypeEnum), makeEvent({
       message_enum: responseTypeEnum,
       message: responseMsg.toObject(),
       from_device: true,
