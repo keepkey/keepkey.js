@@ -1,0 +1,41 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>KeepKey WebUSB Example</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css" />
+</head>
+
+<body>
+  <div class="container" style="padding-top:8em;">
+    <h2>Hello world! This is the keepkey.js demo.</h2>
+    <h5><a href="https://keepkey.github.io/keepkey.js/index.html" target="_blank">View the docs</a></h5>
+
+    <section>
+      <pre class="code">
+
+        window.keepkeyManager = new window.keepkey.KeepKeyManager()
+      </pre>
+    </section>
+
+    <p>Now open the console to start hacking! <code>(Cmd + Shift + C)</code></p>
+    <div class="container">
+      <h3>WebUSB</h3>
+      <p>To seed the <code>window.keepkeyManager</code> with WebUSB devices, first pair a device, then click start.</p>
+      <button class="button button-outline" onclick="window.keepkey.WebUSBDevice.requestPair()">Pair WebUSB Device</button>
+      <button onclick="connectWebUSB()">START WEBUSB</button>
+    </div>
+  
+  </div>
+  <script src="https://unpkg.com/debug@4.0.1/dist/debug.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="js/vendor/keepkey.browser.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>

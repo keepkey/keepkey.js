@@ -1,0 +1,70 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/keepkey
+  docker:
+    - image: circleci/node
+
+jobs:
+  build:
+    <<: *defaults  
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+
+      - run: yarn install
+      - run:
+          name: Run build
+          command: yarn build
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/keepkey
+          paths: .
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - run: yarn install
+      - run:
+          name: Run test
+          command: yarn test
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/keepkey
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/keepkey/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+      - run:
+          name: Deploy docs
+          command: yarn deploy-docs
+            
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - test
+      - deploy:
+          requires:
+            - build
+            - test
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
