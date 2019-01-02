@@ -100,9 +100,9 @@ console.log(responseMessage.toObject().message) // will be 'TEST'
 
 ### Handling Prompt Events
 
-The `KeepKeyManager` exposes an event emitter - `keepkeyManager.deviceEvents` that decorates all events emitted by `keepkey.device.promptEvents` with the ID of the device that emitted it.
+The `KeepKeyManager` exposes an event emitter - `keepkeyManager.deviceEvents` that decorates all events emitted by `keepkey.device.events` with the ID of the device that emitted it.
 
-Both `keepkeyManager.deviceEvents` and `keepkey.device.promptEvents` are instances of [eventemitter2](https://www.npmjs.com/package/eventemitter2) because the `KeepKeyManager` can emit events for all initialized devices.
+Both `keepkeyManager.deviceEvents` and `keepkey.device.events` are instances of [eventemitter2](https://www.npmjs.com/package/eventemitter2) because the `KeepKeyManager` can emit events for all initialized devices.
 
 Devices that have already been paired, and get connected during your app's runtime will automatically be added to the `KeepKeyManager` and start emitting events.
 
@@ -127,7 +127,7 @@ keepkeyManager.deviceEvents.on([String(MESSAGETYPE_FAILURE), '5B58BDA6CE3B9404BA
 })
 
 // or just listen to the keepkey's prompt events directly:
-keepkeyManager.get('5B58BDA6CE3B9404BA6B660D').device.promptEvents.on(String(MESSAGETYPE_FAILURE), (deviceID, ...args) => {
+keepkeyManager.get('5B58BDA6CE3B9404BA6B660D').device.events.on(String(MESSAGETYPE_FAILURE), (deviceID, ...args) => {
   console.log(`I emitted an error. UH OH`)
 })
 
@@ -152,7 +152,7 @@ const { MessageType: {
 
 ```
 
-When the device prompts a user for a button press, or pin, the device will emit an event on its `k.device.promptEvents` event emitter.
+When the device prompts a user for a button press, or pin, the device will emit an event on its `k.device.events` event emitter.
 
 ```javascript
 
@@ -169,7 +169,7 @@ const {
 // Initialize KeepKey
 const keepkey = KeepKey.withWebUSB()
 
-keepkey.device.promptEvents.on(String(MESSAGETYPE_BUTTONREQUEST), (btnRequestMsg) => {
+keepkey.device.events.on(String(MESSAGETYPE_BUTTONREQUEST), (btnRequestMsg) => {
   const { code, data } = btnRequest
 })
 
