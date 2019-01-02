@@ -25,7 +25,7 @@ U2F requires `https` to work, try the library out here! [https://example-ldjlfnp
 ### Installation
 
 ```bash
-yarn add keepkey
+yarn add @keepkey/keepkey.js
 ```
 
 ### Importing library
