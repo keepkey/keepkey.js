@@ -4,11 +4,11 @@
 [![Coveralls](https://img.shields.io/coveralls/keepkey/keepkey.js.svg)](https://coveralls.io/github/keepkey/keepkey.js)
 [![Dev Dependencies](https://david-dm.org/keepkey/keepkey.js/dev-status.svg)](https://david-dm.org/keepkey/keepkey.js?type=dev)
 
-A library for interacting with a KeepKey hardware wallet over U2F and WebUSB.
+A library for interacting with a KeepKey hardware wallet over WebUSB.
 
 ### [Documentation](https://keepkey.github.io/keepkey.js/index.html)
 
-U2F requires `https` to work, try the library out here! [https://example-ldjlfnposh.now.sh](https://example-ldjlfnposh.now.sh)
+WebUSB requires `https` to work, try the library out here! [https://example-ldjlfnposh.now.sh](https://example-ldjlfnposh.now.sh)
 
 - [keepkey.js](#keepkeyjs)
     - [Documentation](#documentation)
@@ -45,7 +45,7 @@ import WebUSBDevice from 'keepkey/dist/lib/webUSBDevice'
 
 ### Usage
 
-The recommended way to use the library is with the KeepKeyManager interface, which will handle initializing, getting, and removing KeepKeys. WebUSB is Chrome only, and U2F is fully supported in Chrome, and behind a feature flag in Firefox.
+The recommended way to use the library is with the KeepKeyManager interface, which will handle initializing, getting, and removing KeepKeys. WebUSB is Chrome only.
 
 ```javascript
 import { KeepKeyManager, WebUSBDevice } from 'keepkey'
@@ -57,7 +57,7 @@ const keepkeyManager = new KeepKeyManager({
   onDisconnectCallback: (deviceID) => console.log('device was disconnected!') 
 })
 
-await keepkeyManager.initializeWebUSBDevices() // or initializeU2FDevices()
+await keepkeyManager.initializeWebUSBDevices()
 
 // Ping all connected devices with a TEST message
 const pingsByDeviceID = keepkeyManager.exec('ping', 'TEST')
@@ -114,7 +114,7 @@ const { MessageType: { MESSAGETYPE_FAILURE } } = Messages
 const keepkeyManager = new KeepKeyManager()
 
 // Will automatically initialize devices and bubble up events for found devices
-await keepkeyManager.initializeWebUSBDevices() // or initializeU2FDevices
+await keepkeyManager.initializeWebUSBDevices()
 
 // This will listen for the failure event on all devices
 keepkeyManager.deviceEvents.on([String(MESSAGETYPE_FAILURE), '*'], (deviceID, ...args) => {
@@ -167,7 +167,7 @@ const {
 } = MessageType
 
 // Initialize KeepKey
-const keepkey = KeepKey.withU2F()
+const keepkey = KeepKey.withWebUSB()
 
 keepkey.device.promptEvents.on(String(MESSAGETYPE_BUTTONREQUEST), (btnRequestMsg) => {
   const { code, data } = btnRequest
@@ -213,7 +213,7 @@ Run `yarn make:protos` to compile KeepKey proto files into `src/proto.json` and 
 
 Run `yarn build` to create `umd`, `commonjs`, and `browser` bundles in the `/dist` direcory.
 
-Run `yarn make:example` to build, and copy browser bundles to the `/example` static site. You can then deploy the the `example` directory to a webserver with `https` so `u2f` works. For example: `yarn make:example && now example`
+Run `yarn make:example` to build, and copy browser bundles to the `/example` static site. You can then deploy the the `example` directory to a webserver with `https` so `WebUSB` works. For example: `yarn make:example && now example`
 
 #### Updating `device-protocol` proto's
 
@@ -231,7 +231,7 @@ then run `yarn make:protos` to compile new code from the updated protos.
 
 ### Developing
 
-When developing with U2F or WebUSB devices, you'll need an `https` connection, and configure your browser to `allow insecure localhost`
+When developing with WebUSB devices, you'll need an `https` connection, and configure your browser to `allow insecure localhost`
 
 To compile and watch the browser bundle, run `yarn dev:example`
 
