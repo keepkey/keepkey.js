@@ -38,15 +38,15 @@ export default class KeepKey {
   }
 
   public async acknowledgeWithCharacter (character: string): Promise<[number, any]> {
-  	return this.acknowledgeWithCharacterProto(character, false, false)
+    return this.acknowledgeWithCharacterProto(character, false, false)
   }
 
   public async acknowledgeWithCharacterDelete (): Promise<[number, any]> {
-  	return this.acknowledgeWithCharacterProto('', true, false)
+    return this.acknowledgeWithCharacterProto('', true, false)
   }
 
   public async acknowledgeWithCharacterDone (): Promise<[number, any]> {
-  	return this.acknowledgeWithCharacterProto('', false, true)
+    return this.acknowledgeWithCharacterProto('', false, true)
   }
 
   public async acknowledgeWithCharacterProto (character: string, _delete: boolean, _done: boolean): Promise<[number, any]> {
