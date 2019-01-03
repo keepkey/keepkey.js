@@ -98,6 +98,9 @@ export default class KeepKeyManager {
     const deviceID = e.device.serialNumber
     this.remove(deviceID)
       .then(() => this.onDisconnectCallback(deviceID))
-      .catch(console.error)
+      .catch((e) => {
+        console.error(e)
+        this.onDisconnectCallback(deviceID)
+      })
   }
 }

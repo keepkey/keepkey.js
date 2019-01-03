@@ -5,6 +5,12 @@ let mockCall = KeepKey.prototype.acknowledgeWithCharacterProto = jest.fn()
 jest.mock('./messageNameRegistry', () => ({}))
 jest.mock('./messageTypeRegistry', () => ({}))
 
+jest.mock('./kkProto/messages_pb', () => ({
+  default: {
+    MessageType: {}
+  }
+}))
+
 describe('KeepKey', () => {
   test('should instantiate a new KeepKey with default values', () => {
     const keepkey = new KeepKey({})
