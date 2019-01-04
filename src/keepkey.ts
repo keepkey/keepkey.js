@@ -220,7 +220,7 @@ export default class KeepKey {
 
     if (dataRemaining) {
       est.setDataLength(dataRemaining.length)
-      dataChunk = dataRemaining.slice(0, 68)
+      dataChunk = dataRemaining.slice(0, 1024)
       dataRemaining = dataRemaining.slice(dataChunk.length)
       est.setDataInitialChunk(dataChunk)
     }
