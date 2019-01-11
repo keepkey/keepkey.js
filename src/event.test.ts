@@ -34,21 +34,4 @@ describe('makeEvent', () => {
       })
     )
   })
-
-  test('should empty object if message_enum is blacklisted', () => {
-    expect(event.makeEvent({
-      message_enum: 42,
-      message: { sensitive: true },
-      from_device: true,
-      interface: 'StandardWebUSB'
-    })).toEqual(
-      expect.objectContaining({
-        date: expect.any(Number),
-        message_enum: 42,
-        message: {},
-        from_device: true,
-        interface: 'StandardWebUSB'
-      })
-    )
-  })
 })
