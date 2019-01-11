@@ -63,7 +63,6 @@ export default abstract class Device {
       return interruptedResponse as [number, jspb.Message]
     }
     if (responseTypeEnum === Messages.MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
-      // Client Must capture MESSAGETYPE_PASSPHRASEREQUEST and send a MESSAGETYPE_PASSPHRASEACK message with pin
       const interruptedResponse = await fromEvent(
         this.events,
         String(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK)
