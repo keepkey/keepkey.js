@@ -63,8 +63,8 @@ export default class KeepKey {
     const [typeEnum, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_CHARACTERACK, characterAck)
     const responseObj = (response as any).toObject()
 
-    // Emit event to notify clients that passphrase has been exchanged
-    this.device.events.emit(String(Messages.MessageType.MESSAGETYPE_CHARACTERACK), typeEnum, response)
+    // Emit event to notify clients that a character has been exchanged
+    this.device.events.emit('CHARACTERACK_INTERRUPT_RESULT', typeEnum, response)
 
     return [typeEnum, responseObj]
   }
@@ -78,7 +78,7 @@ export default class KeepKey {
     const responseObj = (response as any).toObject()
 
     // Emit event to notify clients that passphrase has been exchanged
-    this.device.events.emit(String(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK), typeEnum, response)
+    this.device.events.emit('PASSPHRASEACK_INTERRUPT_RESULT', typeEnum, response)
 
     return [typeEnum, responseObj]
   }
@@ -125,8 +125,8 @@ export default class KeepKey {
     // send
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_CANCEL, cancel)
 
-    // Emit event to notify clients that pin has been exchanged
-    this.device.events.emit(String(Messages.MessageType.MESSAGETYPE_CANCEL))
+    // Emit event to notify clients that an action has been cancelled
+    this.device.events.emit('CANCEL_ACTION')
   }
 
    // ChangePin requests setting/changing the pin

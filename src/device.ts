@@ -65,14 +65,14 @@ export default abstract class Device {
     if (responseTypeEnum === Messages.MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
       const interruptedResponse = await fromEvent(
         this.events,
-        String(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK)
+        'PASSPHRASEACK_INTERRUPT_RESULT'
       ).pipe(take(1)).toPromise()
       return interruptedResponse as [number, jspb.Message]
     }
     if (responseTypeEnum === Messages.MessageType.MESSAGETYPE_CHARACTERREQUEST) {
       const interruptedResponse = await fromEvent(
         this.events,
-        String(Messages.MessageType.MESSAGETYPE_CHARACTERACK)
+        'CHARACTERACK_INTERRUPT_RESULT'
       ).pipe(take(1)).toPromise()
       return interruptedResponse as [number, jspb.Message]
     }
