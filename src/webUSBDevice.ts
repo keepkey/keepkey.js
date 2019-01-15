@@ -1,6 +1,8 @@
 import ByteBuffer from 'bytebuffer'
 import * as jspb from 'google-protobuf'
 import eventemitter2 from 'eventemitter2'
+import { default as PQueue } from 'p-queue'
+
 import Device from './device'
 
 export interface WebUSBDeviceConfig {
@@ -11,7 +13,7 @@ export interface WebUSBDeviceConfig {
 const SEGMENT_SIZE = 63
 
 export default class WebUSBDevice extends Device {
-
+  private queue: PQueue
   public usbDevice: USBDevice
   public events: eventemitter2.EventEmitter2
 
@@ -25,6 +27,7 @@ export default class WebUSBDevice extends Device {
     super()
     this.usbDevice = config.usbDevice
     this.events = config.events || new eventemitter2.EventEmitter2()
+    this.queue = new PQueue({ concurrency: 1 })
   }
 
   public get isInitialized (): boolean {
@@ -32,9 +35,11 @@ export default class WebUSBDevice extends Device {
   }
 
   public async initialize (): Promise<void> {
-    await this.usbDevice.open()
-    if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1)
-    await this.usbDevice.claimInterface(0)
+    if (!this.isInitialized) {
+      await this.usbDevice.open()
+      if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1)
+      await this.usbDevice.claimInterface(0)
+    }
   }
 
   public async disconnect (): Promise<void> {
@@ -50,8 +55,10 @@ export default class WebUSBDevice extends Device {
     msgTypeEnum: number,
     msg: jspb.Message
   ): Promise<[number, jspb.Message]> {
-    await this.write(this.toMessageBuffer(msgTypeEnum, msg))
-    return this.fromMessageBuffer(await this.read())
+    return this.queue.add(async () => {
+      await this.write(this.toMessageBuffer(msgTypeEnum, msg))
+      return this.fromMessageBuffer(await this.read())
+    })
   }
 
   protected async write (buff: ByteBuffer): Promise<void> {
@@ -75,24 +82,23 @@ export default class WebUSBDevice extends Device {
     const msgLength = first.getUint32(5)
     if (valid && msgLength > 0 && msgLength < 4194304) { // 4 MB sanity check
       // FIXME: why doesn't ByteBuffer.concat() work?
-      let buffer = new Uint8Array(9 + 2 + msgLength)
+      const buffer = new Uint8Array(9 + 2 + msgLength)
       for (let k = 0; k < first.byteLength; k++) {
         buffer[k] = first.getUint8(k)
       }
+      let offset = first.byteLength
 
-      if (msgLength > SEGMENT_SIZE) {
-        let max = Math.ceil((msgLength - first.byteLength) / SEGMENT_SIZE)
-        for (let i = 0; i < max; i += 1) {
-          let next = await this.readChunk()
-          for (let k = 1; k < next.byteLength; k++) {
-            buffer[(i + 1) * SEGMENT_SIZE + k] = next.getUint8(k)
-          }
+      while (offset < buffer.length) {
+        const next = await this.readChunk()
+        for (let k = 1; (k < next.byteLength && offset < buffer.length); k++) {
+          buffer[offset] = next.getUint8(k)
+          offset++
         }
       }
 
       return ByteBuffer.wrap(buffer)
     } else {
-      console.error('Invalid message', { msgLength, valid, first})
+      console.error('Invalid message', { msgLength, valid, first })
       return new ByteBuffer(0)
     }
   }
@@ -102,20 +108,12 @@ export default class WebUSBDevice extends Device {
   }
 
   private async readChunk (): Promise<DataView> {
-    const result = await this.usbDevice.transferIn(1, 64)
+    const result = await this.usbDevice.transferIn(1, SEGMENT_SIZE + 1)
 
     if (result.status === 'stall') {
       await this.usbDevice.clearHalt('out', 1)
     }
 
     return Promise.resolve(result.data)
-  }
-
-  protected toByteBuffer (view: DataView): ByteBuffer {
-    let bb = new ByteBuffer(view.byteLength)
-    for (let i = 0; i < view.byteLength; i++) {
-      bb[i] = view.getUint8(i)
-    }
-    return bb
   }
 }

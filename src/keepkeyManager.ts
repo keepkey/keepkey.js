@@ -3,7 +3,7 @@ import eventemitter2 from 'eventemitter2'
 import { WebUSBDeviceConfig } from './webUSBDevice'
 
 export type USBDeviceEventCallback = (deviceID: string) => void
-const defaultUSBDeviceCallback = (deviceID: string) => { return }
+const defaultUSBDeviceCallback = () => {} // tslint:disable-line:no-empty
 
 export interface KeepKeyManagerConfig {
   onConnectCallback?: USBDeviceEventCallback
@@ -37,20 +37,27 @@ export default class KeepKeyManager {
     devices?: USBDevice[]
   ): Promise<number> {
     if (!window.navigator.usb) throw new Error('WebUSB not supported in your browser!')
-    let devicesToInitialize = devices
-    if (!devicesToInitialize) devicesToInitialize = await window.navigator.usb.getDevices()
-    for (let i = 0; i < devicesToInitialize.length; i++) {
-      const usbDevice = devicesToInitialize[i]
+
+    const devicesToInitialize = devices || (await window.navigator.usb.getDevices())
+      .filter((dev) => !(this.keepkeys[dev.serialNumber]))
+
+    for (const usbDevice of devicesToInitialize) {
       let k = KeepKey.withWebUSB({ usbDevice, ...webusbConfig })
       const features = await k.initialize()
-      if (features) this.add(k, features.deviceId)
+      if (features) this.add(k, usbDevice.serialNumber)
     }
+
     return this.initializedCount
   }
 
-  public add (keepkey: KeepKey, deviceID?: string) {
-    this.keepkeys[deviceID || keepkey.features.deviceId] = keepkey
-    this.decorateEvents(deviceID, keepkey.device.events)
+  public add (keepkey: KeepKey, deviceID?: string): boolean {
+    const id = deviceID || keepkey.features.deviceId
+    if (!(this.keepkeys[id])) {
+      this.keepkeys[id] = keepkey
+      this.decorateEvents(deviceID, keepkey.device.events)
+      return true
+    }
+    return false
   }
 
   public async exec (method: string, ...args): Promise<{ [deviceID: string]: any }> {

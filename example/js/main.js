@@ -137,9 +137,13 @@ window.connectWebUSB = function () {
       Object.keys(manager.keepkeys).forEach((deviceID) => {
         loggers[deviceID] = window.debug(deviceID)
       })
+      manager.deviceEvents.offAny()
       manager.deviceEvents.onAny((_, [deviceID, msg]) => {
         loggers[deviceID](msg)
       })
     })
-    .catch(console.error)
+    .catch(e => {
+      console.error('ConnectWebUSB Error')
+      console.error(String(e))
+    })
 }
