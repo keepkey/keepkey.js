@@ -71,29 +71,30 @@ export default class WebUSBDevice extends Device {
     let first = await this.readChunk()
 
     // FIXME: assert that buffer starts with: [ 0x3f, 0x23, 0x23 ]
-    let msgLength =
-      (first.getUint8(5) << 24) |
-      (first.getUint8(6) << 16) |
-      (first.getUint8(7) << 8) |
-      (first.getUint8(8))
+    const valid = first.getUint32(0) === 1059267328
+    const msgLength = first.getUint32(5)
+    if (valid && msgLength > 0 && msgLength < 4194304) { // 4 MB sanity check
+      // FIXME: why doesn't ByteBuffer.concat() work?
+      let buffer = new Uint8Array(9 + 2 + msgLength)
+      for (let k = 0; k < first.byteLength; k++) {
+        buffer[k] = first.getUint8(k)
+      }
 
-    // FIXME: why doesn't ByteBuffer.concat() work?
-    let buffer = new Uint8Array(9 + 2 + msgLength)
-    for (let k = 0; k < first.byteLength; k++) {
-      buffer[k] = first.getUint8(k)
-    }
-
-    if (msgLength > SEGMENT_SIZE) {
-      let max = Math.ceil((msgLength - first.byteLength) / SEGMENT_SIZE)
-      for (let i = 0; i < max; i += 1) {
-        let next = await this.readChunk()
-        for (let k = 1; k < next.byteLength; k++) {
-          buffer[(i + 1) * SEGMENT_SIZE + k] = next.getUint8(k)
+      if (msgLength > SEGMENT_SIZE) {
+        let max = Math.ceil((msgLength - first.byteLength) / SEGMENT_SIZE)
+        for (let i = 0; i < max; i += 1) {
+          let next = await this.readChunk()
+          for (let k = 1; k < next.byteLength; k++) {
+            buffer[(i + 1) * SEGMENT_SIZE + k] = next.getUint8(k)
+          }
         }
       }
-    }
 
-    return ByteBuffer.wrap(buffer)
+      return ByteBuffer.wrap(buffer)
+    } else {
+      console.error('Invalid message', { msgLength, valid, first})
+      return new ByteBuffer(0)
+    }
   }
 
   private async writeChunk (buffer: ByteBuffer): Promise<USBOutTransferResult> {
