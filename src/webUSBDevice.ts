@@ -77,10 +77,12 @@ export default class WebUSBDevice extends Device {
   protected async read (): Promise<ByteBuffer> {
     let first = await this.readChunk()
 
-    // Check that buffer starts with: [ 0x3f, 0x23, 0x23, 0x00 ]
+    // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
+    // "?" = USB marker, "##" = KeepKey magic bytes
+    // Message ID is bytes 4-5. Message length starts at byte 6.
     const valid = (first.getUint32(0) & 0xffffff00) === 0x3f232300
     const msgLength = first.getUint32(5)
-    if (valid && msgLength >= 0 && msgLength < 4194304) { // 4 MB sanity check
+    if (valid && msgLength >= 0 && msgLength < 131072) { // 128KB max message size
       // FIXME: why doesn't ByteBuffer.concat() work?
       const buffer = new Uint8Array(9 + 2 + msgLength)
       for (let k = 0; k < first.byteLength; k++) {
@@ -90,6 +92,7 @@ export default class WebUSBDevice extends Device {
 
       while (offset < buffer.length) {
         const next = await this.readChunk()
+        // Drop USB "?" packet identifier in the first byte
         for (let k = 1; (k < next.byteLength && offset < buffer.length); k++) {
           buffer[offset] = next.getUint8(k)
           offset++
