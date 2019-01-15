@@ -8,6 +8,7 @@ const defaultUSBDeviceCallback = () => {} // tslint:disable-line:no-empty
 export interface KeepKeyManagerConfig {
   onConnectCallback?: USBDeviceEventCallback
   onDisconnectCallback?: USBDeviceEventCallback
+  usbRef?: USB
 }
 
 export default class KeepKeyManager {
@@ -22,9 +23,11 @@ export default class KeepKeyManager {
     this.onDisconnectCallback = config.onDisconnectCallback || defaultUSBDeviceCallback
 
     // If we have access to WebUSB, register callbacks
-    if (window.navigator.usb) {
-      window.navigator.usb.onconnect = this.handleConnectKeepKey.bind(this)
-      window.navigator.usb.ondisconnect = this.handleDisconnectKeepKey.bind(this)
+    if (config.usbRef || window) {
+      let usbRef = config.usbRef || window.navigator.usb
+      if (!usbRef) return
+      usbRef.addEventListener('connect', this.handleConnectKeepKey.bind(this))
+      usbRef.addEventListener('disconnect', this.handleDisconnectKeepKey.bind(this))
     }
   }
 
@@ -36,7 +39,9 @@ export default class KeepKeyManager {
     webusbConfig?: WebUSBDeviceConfig,
     devices?: USBDevice[]
   ): Promise<number> {
-    if (!window.navigator.usb) throw new Error('WebUSB not supported in your browser!')
+    if (!devices && window) {
+      if (!window.navigator.usb) throw new Error('WebUSB not supported in your browser!')
+    }
 
     const devicesToInitialize = devices || (await window.navigator.usb.getDevices())
       .filter((dev) => !(this.keepkeys[dev.serialNumber]))

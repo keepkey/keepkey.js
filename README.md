@@ -45,12 +45,12 @@ import WebUSBDevice from '@keepkey/keepkey.js/dist/lib/webUSBDevice'
 
 ### Usage
 
-The recommended way to use the library is with the KeepKeyManager interface, which will handle initializing, getting, and removing KeepKeys. WebUSB is Chrome only.
+The recommended way to use the library is with the KeepKeyManager interface, which will handle initializing, getting, and removing KeepKeys. WebUSB is Chromium only.
 
 ```javascript
-import { KeepKeyManager, WebUSBDevice } from '@keepkey/keepkey.js'
+import { KeepKeyManager, WebUSBDevice, KeepKeyDeviceRequestOptions } from '@keepkey/keepkey.js'
 
-await WebUSBDevice.requestPair() // Prompt the user to pair a KeepKey
+const devices = await window.navigator.usb.requestDevice(KeepKeyDeviceRequestOptions) // Prompt the user to pair a KeepKey
 
 const keepkeyManager = new KeepKeyManager({
   onConnectCallback: (deviceID) => console.log('device was connected!'), // These callbacks only work with webUSB at the moment

@@ -8,25 +8,25 @@ import Device from './device'
 export interface WebUSBDeviceConfig {
   usbDevice: USBDevice,
   events?: eventemitter2.EventEmitter2
+  entropyGetter?: (array: Uint8Array) => Uint8Array
 }
 
 const SEGMENT_SIZE = 63
 
 export default class WebUSBDevice extends Device {
   private queue: PQueue
+  private entropyGetter: (array: Uint8Array) => Uint8Array
+
   public usbDevice: USBDevice
   public events: eventemitter2.EventEmitter2
 
   protected interface: Interface = 'StandardWebUSB'
 
-  public static async requestPair (): Promise<USBDevice> {
-    return window.navigator.usb.requestDevice({ filters: [{ vendorId: 0x2b24 }] })
-  }
-
   constructor (config: WebUSBDeviceConfig) {
     super()
     this.usbDevice = config.usbDevice
     this.events = config.events || new eventemitter2.EventEmitter2()
+    this.entropyGetter = config.entropyGetter || window.crypto.getRandomValues
     this.queue = new PQueue({ concurrency: 1 })
   }
 
@@ -48,7 +48,7 @@ export default class WebUSBDevice extends Device {
   }
 
   public getEntropy (length: number = 64): Uint8Array {
-    return window.crypto.getRandomValues(new Uint8Array(length))
+    return this.entropyGetter(new Uint8Array(length))
   }
 
   public async sendRaw (

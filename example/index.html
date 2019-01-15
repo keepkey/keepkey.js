@@ -27,7 +27,7 @@
     <div class="container">
       <h3>WebUSB</h3>
       <p>To seed the <code>window.keepkeyManager</code> with WebUSB devices, first pair a device, then click start.</p>
-      <button class="button button-outline" onclick="window.keepkey.WebUSBDevice.requestPair()">Pair WebUSB Device</button>
+      <button class="button button-outline" onclick="window.navigator.usb.requestDevice(window.keepkey.KeepKeyDeviceRequestOptions)">Pair WebUSB Device</button>
       <button onclick="connectWebUSB()">START WEBUSB</button>
     </div>
   
