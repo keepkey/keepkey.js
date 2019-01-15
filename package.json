@@ -93,6 +93,7 @@
     "device-protocol": "git+https://git@github.com/KeepKey/device-protocol.git#4ee29339fb8a9c916bcba9079aebd5254a16df08",
     "eventemitter2": "^5.0.1",
     "google-protobuf": "^3.6.1",
+    "p-queue": "^3.0.0",
     "protobufjs": "^6.8.8",
     "rxjs": "^6.3.3"
   },
@@ -104,6 +105,7 @@
     "@types/google-protobuf": "^3.2.7",
     "@types/jest": "^23.3.2",
     "@types/node": "^10.11.0",
+    "@types/p-queue": "^3.0.0",
     "colors": "^1.3.2",
     "commitizen": "^3.0.0",
     "coveralls": "^3.0.2",
