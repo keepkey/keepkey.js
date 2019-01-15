@@ -80,7 +80,7 @@ export default class WebUSBDevice extends Device {
     // Check that buffer starts with: [ 0x3f, 0x23, 0x23, 0x00 ]
     const valid = first.getUint32(0) === 0x3f232300
     const msgLength = first.getUint32(5)
-    if (valid && msgLength > 0 && msgLength < 4194304) { // 4 MB sanity check
+    if (valid && msgLength >= 0 && msgLength < 4194304) { // 4 MB sanity check
       // FIXME: why doesn't ByteBuffer.concat() work?
       const buffer = new Uint8Array(9 + 2 + msgLength)
       for (let k = 0; k < first.byteLength; k++) {
