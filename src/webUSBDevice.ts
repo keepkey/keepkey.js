@@ -51,18 +51,20 @@ export default class WebUSBDevice extends Device {
     return window.crypto.getRandomValues(new Uint8Array(length))
   }
 
-  public async sendRaw (
-    msgTypeEnum: number,
-    msg: jspb.Message
-  ): Promise<[number, jspb.Message]> {
-    return this.queue.add(async () => {
-      await this.write(this.toMessageBuffer(msgTypeEnum, msg))
-      return this.fromMessageBuffer(await this.read())
-    })
+  // This must return a tuple of [returnedBuffer, entireBufferThatWasSent], concatenating if
+  // buffers were sent in chunks
+  public async sendRaw (buffer: ByteBuffer): Promise<ByteBuffer[]> {
+    // Temporarily removing queue to debug overflow error potentially caused by concurrent sends
+    // return this.queue.add(async () => {
+    const entireBuffer = await this.write(buffer)
+    const responseBuffer = await this.read()
+    return [responseBuffer, entireBuffer]
+    // })
   }
 
-  protected async write (buff: ByteBuffer): Promise<void> {
+  protected async write (buff: ByteBuffer): Promise<ByteBuffer> {
     // break frame into segments
+    let entireBuffer
     for (let i = 0; i < buff.limit; i += SEGMENT_SIZE) {
       let segment = buff.toArrayBuffer().slice(i, i + SEGMENT_SIZE)
       let padding = new Array(SEGMENT_SIZE - segment.byteLength + 1).join('\0')
@@ -70,13 +72,16 @@ export default class WebUSBDevice extends Device {
       fragments.push([63])
       fragments.push(segment)
       fragments.push(padding)
-      await this.writeChunk(ByteBuffer.concat(fragments))
+      const fragmentBuffer = ByteBuffer.concat(fragments)
+      await this.writeChunk(fragmentBuffer)
+      if (!entireBuffer) entireBuffer = fragmentBuffer
+      else entireBuffer = ByteBuffer.concat([entireBuffer, fragmentBuffer])
     }
+    return entireBuffer
   }
 
   protected async read (): Promise<ByteBuffer> {
     let first = await this.readChunk()
-
     // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
     // "?" = USB marker, "##" = KeepKey magic bytes
     // Message ID is bytes 4-5. Message length starts at byte 6.

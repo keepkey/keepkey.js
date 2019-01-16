@@ -25,17 +25,21 @@ export default abstract class Device {
   // in https://github.com/go-ethereum/accounts/usbwallet/trezor.go
   // and https://github.com/solipsis/go-keepkey/blob/master/pkg/keepkey/transport.go#L277
   public async exchange (msgTypeEnum: number, msg: jspb.Message): Promise<[number, jspb.Message]> {
+    const msgBuffer = this.toMessageBuffer(msgTypeEnum, msg)
+    const [responseBuffer, sentBuffer] = await this.sendRaw(msgBuffer)
     this.events.emit(String(msgTypeEnum), makeEvent({
       message_enum: msgTypeEnum,
       message: msg.toObject(),
       from_device: false,
+      buffer: sentBuffer.toString('hex'),
       interface: this.interface
     }))
-    const [responseTypeEnum, responseMsg] = await this.sendRaw(msgTypeEnum, msg)
+    const [responseTypeEnum, responseMsg] = await this.fromMessageBuffer(responseBuffer)
     this.events.emit(String(responseTypeEnum), makeEvent({
       message_enum: responseTypeEnum,
       message: responseMsg.toObject(),
       from_device: true,
+      buffer: responseBuffer.toString('hex'),
       interface: this.interface
     }))
 
@@ -79,7 +83,7 @@ export default abstract class Device {
     return [responseTypeEnum, responseMsg]
   }
 
-  public abstract sendRaw (msgEnum: number, msg: jspb.Message): Promise<[number, jspb.Message]>
+  public abstract sendRaw (buffer: ByteBuffer): Promise<ByteBuffer[]>
 
   protected toMessageBuffer (msgTypeEnum: number, msg: jspb.Message): ByteBuffer {
     const messageBuffer = msg.serializeBinary()

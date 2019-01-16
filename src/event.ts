@@ -5,6 +5,7 @@ export interface Event {
   message_type?: string
   message_enum: number
   from_device: boolean
+  buffer: string
   interface?: Interface
   message: {},
   date?: number

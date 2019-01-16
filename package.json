@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/keepkey.js",
-  "version": "1.0.9",
+  "version": "1.0.10-canary",
   "description": "",
   "keywords": [
     "crypto",
@@ -25,7 +25,7 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "lint": "tslint  --project tsconfig.json -e 'src/kkProto/*' -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "lint": "tslint --strictNullChecks  --project tsconfig.json -e 'src/kkProto/*' -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "copy:protos": "cp ./node_modules/device-protocol/exchange.proto ./node_modules/device-protocol/types.proto ./node_modules/device-protocol/messages.proto .",
     "gen:protos": "protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --js_out=import_style=commonjs,binary:./src/kkProto --ts_out=./src/kkProto exchange.proto types.proto messages.proto",
     "build:json": "pbjs --keep-case -t json ./node_modules/device-protocol/types.proto ./node_modules/device-protocol/messages.proto ./node_modules/device-protocol/exchange.proto > ./src/proto.json",
