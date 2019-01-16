@@ -43,8 +43,12 @@ export default class WebUSBDevice extends Device {
   }
 
   public async disconnect (): Promise<void> {
-    if (!this.usbDevice.opened) return
-    return this.usbDevice.releaseInterface(0)
+    debugger
+    try {
+      return this.usbDevice.releaseInterface(0)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   public getEntropy (length: number = 64): Uint8Array {
