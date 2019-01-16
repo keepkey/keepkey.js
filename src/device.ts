@@ -34,7 +34,7 @@ export default abstract class Device {
       buffer: sentBuffer.toString('hex'),
       interface: this.interface
     }))
-    const [responseTypeEnum, responseMsg] = await this.fromMessageBuffer(responseBuffer)
+    const [responseTypeEnum, responseMsg] = this.fromMessageBuffer(responseBuffer)
     this.events.emit(String(responseTypeEnum), makeEvent({
       message_enum: responseTypeEnum,
       message: responseMsg.toObject(),
