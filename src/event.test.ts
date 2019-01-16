@@ -22,6 +22,7 @@ describe('makeEvent', () => {
       message_enum: 1,
       message: {},
       from_device: true,
+      buffer: '',
       interface: 'StandardWebUSB'
     })).toEqual(
       expect.objectContaining({
@@ -29,6 +30,7 @@ describe('makeEvent', () => {
         date: expect.any(Number),
         message_enum: 1,
         message: {},
+        buffer: '',
         from_device: true,
         interface: 'StandardWebUSB'
       })
