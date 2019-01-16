@@ -90,7 +90,7 @@
   },
   "dependencies": {
     "bytebuffer": "git+https://git@github.com/spiceboi/bytebuffer.js.git",
-    "device-protocol": "git+https://git@github.com/KeepKey/device-protocol.git#4ee29339fb8a9c916bcba9079aebd5254a16df08",
+    "device-protocol": "git+https://git@github.com/KeepKey/device-protocol.git#v6.0.1",
     "eventemitter2": "^5.0.1",
     "google-protobuf": "^3.6.1",
     "p-queue": "^3.0.0",
