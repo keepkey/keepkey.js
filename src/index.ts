@@ -17,5 +17,9 @@ export * from './utils'
 // Export a map of number MessageType enums to their respective keepkey proto class
 export { default as messageTypeRegistry } from './messageTypeRegistry'
 
+// Export constants useful for detecting devices
+export const productID = '0002'
+export const vendorID = 0x2b24
+
 // Export our WebUSB Device filter
-export const KeepKeyDeviceRequestOptions = { filters: [{ vendorId: 0x2b24 }] }
+export const KeepKeyDeviceRequestOptions = { filters: [{ vendorId: vendorID }] }

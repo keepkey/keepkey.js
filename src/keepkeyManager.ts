@@ -22,7 +22,7 @@ export default class KeepKeyManager {
     this.onConnectCallback = config.onConnectCallback || defaultUSBDeviceCallback
     this.onDisconnectCallback = config.onDisconnectCallback || defaultUSBDeviceCallback
 
-    // If we have access to WebUSB, register callbacks
+    // If we have access to WebUSB or a polyfill, register callbacks
     if (config.usbRef || window) {
       let usbRef = config.usbRef || window.navigator.usb
       if (!usbRef) return

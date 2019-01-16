@@ -15,6 +15,7 @@ WebUSB requires `https` to work, try the library out here! [https://example-ldjl
     - [Installation](#installation)
     - [Importing library](#importing-library)
     - [Usage](#usage)
+    - [WebUSB in non-browser environments](#webusb-in-non-browser-environments)
     - [Handling Prompt Events](#handling-prompt-events)
       - [Event Types](#event-types)
     - [Recovering a device with a seed phrase](#recovering-a-device-with-a-seed-phrase)
@@ -96,6 +97,48 @@ const [responseTypeEnum, responseMessage] = await device.exchange(
 
 console.log(responseMessage.toObject().message) // will be 'TEST'
 
+```
+
+### WebUSB in non-browser environments
+
+You could also use [webusb](https://github.com/thegecko/webusb) to use the WebUSB interface provided by this library. Your mileage may vary.
+
+```js
+import { randomFillSync } from 'crypto'
+import { USB } from 'webusb'
+import { KeepKeyManager, KeepKeyDeviceRequestOptions } from '@keepkey/keepkey.js'
+
+// You may need to tweak this to suit your needs
+function handleDevicesFound(devices, selectFn) {
+  process.stdin.setRawMode(true)
+  process.stdin.setEncoding("utf8")
+  process.stdin.on("readable", () => {
+    var input = process.stdin.read()
+    if (input === "\u0003") process.exit()
+    else {
+      var index = parseInt(input);
+      if (index && index <= devices.length) {
+        process.stdin.setRawMode(false)
+        selectFn(devices[index - 1])
+      }
+    }
+  })
+  console.log(devices)
+}
+
+var usb = new USB({ devicesFound: handleDevicesFound })
+
+const devices = await usb.requestDevice(KeepKeyDeviceRequestOptions)
+
+const keepkeyManager = new KeepKeyManager({
+  usbRef: usb, // This is important because it instructs the manager not to reference window.navigator.usb
+  onConnectCallback: (deviceID) => console.log('device was connected!'), // These callbacks only work with webUSB at the moment
+  onDisconnectCallback: (deviceID) => console.log('device was disconnected!') 
+})
+
+await keepkeyManager.initializeWebUSBDevices({
+  entropyGetter: randomFillSync // This is important because it instructs the manager not to reference window.crypto.getRandomValues
+}, devices)
 ```
 
 ### Handling Prompt Events
