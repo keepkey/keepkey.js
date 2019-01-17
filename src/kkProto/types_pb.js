@@ -730,23 +730,18 @@ proto.CoinType.toObject = function(includeInstance, msg) {
     addressType: jspb.Message.getFieldWithDefault(msg, 3, 0),
     maxfeeKb: jspb.Message.getField(msg, 4),
     addressTypeP2sh: jspb.Message.getFieldWithDefault(msg, 5, 5),
-    addressTypeP2wpkh: jspb.Message.getFieldWithDefault(msg, 6, 6),
-    addressTypeP2wsh: jspb.Message.getFieldWithDefault(msg, 7, 10),
     signedMessageHeader: jspb.Message.getField(msg, 8),
     bip44AccountPath: jspb.Message.getField(msg, 9),
     forkid: jspb.Message.getField(msg, 12),
     decimals: jspb.Message.getField(msg, 13),
     contractAddress: msg.getContractAddress_asB64(),
-    gasLimit: msg.getGasLimit_asB64(),
     xpubMagic: jspb.Message.getFieldWithDefault(msg, 16, 76067358),
-    xprvMagic: jspb.Message.getFieldWithDefault(msg, 17, 76066276),
     segwit: jspb.Message.getField(msg, 18),
     forceBip143: jspb.Message.getField(msg, 19),
     curveName: jspb.Message.getField(msg, 20),
     cashaddrPrefix: jspb.Message.getField(msg, 21),
     bech32Prefix: jspb.Message.getField(msg, 22),
     decred: jspb.Message.getField(msg, 23),
-    versionGroupId: jspb.Message.getField(msg, 24),
     xpubMagicSegwitP2sh: jspb.Message.getField(msg, 25),
     xpubMagicSegwitNative: jspb.Message.getField(msg, 26)
   };
@@ -805,14 +800,6 @@ proto.CoinType.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {number} */ (reader.readUint32());
       msg.setAddressTypeP2sh(value);
       break;
-    case 6:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setAddressTypeP2wpkh(value);
-      break;
-    case 7:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setAddressTypeP2wsh(value);
-      break;
     case 8:
       var value = /** @type {string} */ (reader.readString());
       msg.setSignedMessageHeader(value);
@@ -833,17 +820,9 @@ proto.CoinType.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setContractAddress(value);
       break;
-    case 15:
-      var value = /** @type {!Uint8Array} */ (reader.readBytes());
-      msg.setGasLimit(value);
-      break;
     case 16:
       var value = /** @type {number} */ (reader.readUint32());
       msg.setXpubMagic(value);
-      break;
-    case 17:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setXprvMagic(value);
       break;
     case 18:
       var value = /** @type {boolean} */ (reader.readBool());
@@ -868,10 +847,6 @@ proto.CoinType.deserializeBinaryFromReader = function(msg, reader) {
     case 23:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setDecred(value);
-      break;
-    case 24:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setVersionGroupId(value);
       break;
     case 25:
       var value = /** @type {number} */ (reader.readUint32());
@@ -945,20 +920,6 @@ proto.CoinType.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = /** @type {number} */ (jspb.Message.getField(message, 6));
-  if (f != null) {
-    writer.writeUint32(
-      6,
-      f
-    );
-  }
-  f = /** @type {number} */ (jspb.Message.getField(message, 7));
-  if (f != null) {
-    writer.writeUint32(
-      7,
-      f
-    );
-  }
   f = /** @type {string} */ (jspb.Message.getField(message, 8));
   if (f != null) {
     writer.writeString(
@@ -994,24 +955,10 @@ proto.CoinType.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = /** @type {!(string|Uint8Array)} */ (jspb.Message.getField(message, 15));
-  if (f != null) {
-    writer.writeBytes(
-      15,
-      f
-    );
-  }
   f = /** @type {number} */ (jspb.Message.getField(message, 16));
   if (f != null) {
     writer.writeUint32(
       16,
-      f
-    );
-  }
-  f = /** @type {number} */ (jspb.Message.getField(message, 17));
-  if (f != null) {
-    writer.writeUint32(
-      17,
       f
     );
   }
@@ -1054,13 +1001,6 @@ proto.CoinType.serializeBinaryToWriter = function(message, writer) {
   if (f != null) {
     writer.writeBool(
       23,
-      f
-    );
-  }
-  f = /** @type {number} */ (jspb.Message.getField(message, 24));
-  if (f != null) {
-    writer.writeUint32(
-      24,
       f
     );
   }
@@ -1223,64 +1163,6 @@ proto.CoinType.prototype.clearAddressTypeP2sh = function() {
  */
 proto.CoinType.prototype.hasAddressTypeP2sh = function() {
   return jspb.Message.getField(this, 5) != null;
-};
-
-
-/**
- * optional uint32 address_type_p2wpkh = 6;
- * @return {number}
- */
-proto.CoinType.prototype.getAddressTypeP2wpkh = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 6));
-};
-
-
-/** @param {number} value */
-proto.CoinType.prototype.setAddressTypeP2wpkh = function(value) {
-  jspb.Message.setField(this, 6, value);
-};
-
-
-proto.CoinType.prototype.clearAddressTypeP2wpkh = function() {
-  jspb.Message.setField(this, 6, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.CoinType.prototype.hasAddressTypeP2wpkh = function() {
-  return jspb.Message.getField(this, 6) != null;
-};
-
-
-/**
- * optional uint32 address_type_p2wsh = 7;
- * @return {number}
- */
-proto.CoinType.prototype.getAddressTypeP2wsh = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 10));
-};
-
-
-/** @param {number} value */
-proto.CoinType.prototype.setAddressTypeP2wsh = function(value) {
-  jspb.Message.setField(this, 7, value);
-};
-
-
-proto.CoinType.prototype.clearAddressTypeP2wsh = function() {
-  jspb.Message.setField(this, 7, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.CoinType.prototype.hasAddressTypeP2wsh = function() {
-  return jspb.Message.getField(this, 7) != null;
 };
 
 
@@ -1454,59 +1336,6 @@ proto.CoinType.prototype.hasContractAddress = function() {
 
 
 /**
- * optional bytes gas_limit = 15;
- * @return {!(string|Uint8Array)}
- */
-proto.CoinType.prototype.getGasLimit = function() {
-  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 15, ""));
-};
-
-
-/**
- * optional bytes gas_limit = 15;
- * This is a type-conversion wrapper around `getGasLimit()`
- * @return {string}
- */
-proto.CoinType.prototype.getGasLimit_asB64 = function() {
-  return /** @type {string} */ (jspb.Message.bytesAsB64(
-      this.getGasLimit()));
-};
-
-
-/**
- * optional bytes gas_limit = 15;
- * Note that Uint8Array is not supported on all browsers.
- * @see http://caniuse.com/Uint8Array
- * This is a type-conversion wrapper around `getGasLimit()`
- * @return {!Uint8Array}
- */
-proto.CoinType.prototype.getGasLimit_asU8 = function() {
-  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
-      this.getGasLimit()));
-};
-
-
-/** @param {!(string|Uint8Array)} value */
-proto.CoinType.prototype.setGasLimit = function(value) {
-  jspb.Message.setField(this, 15, value);
-};
-
-
-proto.CoinType.prototype.clearGasLimit = function() {
-  jspb.Message.setField(this, 15, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.CoinType.prototype.hasGasLimit = function() {
-  return jspb.Message.getField(this, 15) != null;
-};
-
-
-/**
  * optional uint32 xpub_magic = 16;
  * @return {number}
  */
@@ -1532,35 +1361,6 @@ proto.CoinType.prototype.clearXpubMagic = function() {
  */
 proto.CoinType.prototype.hasXpubMagic = function() {
   return jspb.Message.getField(this, 16) != null;
-};
-
-
-/**
- * optional uint32 xprv_magic = 17;
- * @return {number}
- */
-proto.CoinType.prototype.getXprvMagic = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 17, 76066276));
-};
-
-
-/** @param {number} value */
-proto.CoinType.prototype.setXprvMagic = function(value) {
-  jspb.Message.setField(this, 17, value);
-};
-
-
-proto.CoinType.prototype.clearXprvMagic = function() {
-  jspb.Message.setField(this, 17, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.CoinType.prototype.hasXprvMagic = function() {
-  return jspb.Message.getField(this, 17) != null;
 };
 
 
@@ -1741,35 +1541,6 @@ proto.CoinType.prototype.clearDecred = function() {
  */
 proto.CoinType.prototype.hasDecred = function() {
   return jspb.Message.getField(this, 23) != null;
-};
-
-
-/**
- * optional uint32 version_group_id = 24;
- * @return {number}
- */
-proto.CoinType.prototype.getVersionGroupId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 24, 0));
-};
-
-
-/** @param {number} value */
-proto.CoinType.prototype.setVersionGroupId = function(value) {
-  jspb.Message.setField(this, 24, value);
-};
-
-
-proto.CoinType.prototype.clearVersionGroupId = function() {
-  jspb.Message.setField(this, 24, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.CoinType.prototype.hasVersionGroupId = function() {
-  return jspb.Message.getField(this, 24) != null;
 };
 
 
@@ -5801,7 +5572,10 @@ proto.ButtonRequestType = {
   BUTTONREQUEST_APPLYPOLICIES: 29,
   BUTTONREQUEST_SIGNEXCHANGE: 30,
   BUTTONREQUEST_AUTOLOCKDELAYMS: 31,
-  BUTTONREQUEST_U2FCOUNTER: 32
+  BUTTONREQUEST_U2FCOUNTER: 32,
+  BUTTONREQUEST_CONFIRMEOSACTION: 33,
+  BUTTONREQUEST_CONFIRMEOSBUDGET: 34,
+  BUTTONREQUEST_CONFIRMMEMO: 35
 };
 
 /**
