@@ -176,7 +176,7 @@ export default class KeepKey {
     // send, receive ethereumaddress message
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr)
     const { address, addressStr } = (response as Messages.EthereumAddress).toObject()
-    return addressStr || address as string
+    return addressStr || ('0x' + (address as string))
   }
 
   // Sign an ethereum transaction using a given node path

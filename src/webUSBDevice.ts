@@ -55,11 +55,11 @@ export default class WebUSBDevice extends Device {
   // buffers were sent in chunks
   public async sendRaw (buffer: ByteBuffer): Promise<ByteBuffer[]> {
     // Temporarily removing queue to debug overflow error potentially caused by concurrent sends
-    // return this.queue.add(async () => {
-    const entireBuffer = await this.write(buffer)
-    const responseBuffer = await this.read()
-    return [responseBuffer, entireBuffer]
-    // })
+    return this.queue.add(async () => {
+      const entireBuffer = await this.write(buffer)
+      const responseBuffer = await this.read()
+      return [responseBuffer, entireBuffer]
+    })
   }
 
   protected async write (buff: ByteBuffer): Promise<ByteBuffer> {
