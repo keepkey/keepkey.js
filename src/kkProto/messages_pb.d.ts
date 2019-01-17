@@ -792,6 +792,11 @@ export class EthereumAddress extends jspb.Message {
   getAddress_asB64(): string;
   setAddress(value: Uint8Array | string): void;
 
+  hasAddressStr(): boolean;
+  clearAddressStr(): void;
+  getAddressStr(): string | undefined;
+  setAddressStr(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): EthereumAddress.AsObject;
   static toObject(includeInstance: boolean, msg: EthereumAddress): EthereumAddress.AsObject;
@@ -805,6 +810,7 @@ export class EthereumAddress extends jspb.Message {
 export namespace EthereumAddress {
   export type AsObject = {
     address: Uint8Array | string,
+    addressStr?: string,
   }
 }
 
@@ -1033,6 +1039,16 @@ export class RecoveryDevice extends jspb.Message {
   getAutoLockDelayMs(): number | undefined;
   setAutoLockDelayMs(value: number): void;
 
+  hasU2fCounter(): boolean;
+  clearU2fCounter(): void;
+  getU2fCounter(): number | undefined;
+  setU2fCounter(value: number): void;
+
+  hasDryRun(): boolean;
+  clearDryRun(): void;
+  getDryRun(): boolean | undefined;
+  setDryRun(value: boolean): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RecoveryDevice.AsObject;
   static toObject(includeInstance: boolean, msg: RecoveryDevice): RecoveryDevice.AsObject;
@@ -1053,6 +1069,8 @@ export namespace RecoveryDevice {
     enforceWordlist?: boolean,
     useCharacterCipher?: boolean,
     autoLockDelayMs?: number,
+    u2fCounter?: number,
+    dryRun?: boolean,
   }
 }
 
@@ -1641,70 +1659,6 @@ export namespace SignTx {
     expiry?: number,
     overwintered?: boolean,
     versionGroupId?: number,
-  }
-}
-
-export class SimpleSignTx extends jspb.Message {
-  clearInputsList(): void;
-  getInputsList(): Array<types_pb.TxInputType>;
-  setInputsList(value: Array<types_pb.TxInputType>): void;
-  addInputs(value?: types_pb.TxInputType, index?: number): types_pb.TxInputType;
-
-  clearOutputsList(): void;
-  getOutputsList(): Array<types_pb.TxOutputType>;
-  setOutputsList(value: Array<types_pb.TxOutputType>): void;
-  addOutputs(value?: types_pb.TxOutputType, index?: number): types_pb.TxOutputType;
-
-  clearTransactionsList(): void;
-  getTransactionsList(): Array<types_pb.TransactionType>;
-  setTransactionsList(value: Array<types_pb.TransactionType>): void;
-  addTransactions(value?: types_pb.TransactionType, index?: number): types_pb.TransactionType;
-
-  hasCoinName(): boolean;
-  clearCoinName(): void;
-  getCoinName(): string | undefined;
-  setCoinName(value: string): void;
-
-  hasVersion(): boolean;
-  clearVersion(): void;
-  getVersion(): number | undefined;
-  setVersion(value: number): void;
-
-  hasLockTime(): boolean;
-  clearLockTime(): void;
-  getLockTime(): number | undefined;
-  setLockTime(value: number): void;
-
-  hasExpiry(): boolean;
-  clearExpiry(): void;
-  getExpiry(): number | undefined;
-  setExpiry(value: number): void;
-
-  hasOverwintered(): boolean;
-  clearOverwintered(): void;
-  getOverwintered(): boolean | undefined;
-  setOverwintered(value: boolean): void;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): SimpleSignTx.AsObject;
-  static toObject(includeInstance: boolean, msg: SimpleSignTx): SimpleSignTx.AsObject;
-  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: SimpleSignTx, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): SimpleSignTx;
-  static deserializeBinaryFromReader(message: SimpleSignTx, reader: jspb.BinaryReader): SimpleSignTx;
-}
-
-export namespace SimpleSignTx {
-  export type AsObject = {
-    inputsList: Array<types_pb.TxInputType.AsObject>,
-    outputsList: Array<types_pb.TxOutputType.AsObject>,
-    transactionsList: Array<types_pb.TransactionType.AsObject>,
-    coinName?: string,
-    version?: number,
-    lockTime?: number,
-    expiry?: number,
-    overwintered?: boolean,
   }
 }
 
@@ -2642,7 +2596,6 @@ export enum MessageType {
   MESSAGETYPE_LOADDEVICE = 13,
   MESSAGETYPE_RESETDEVICE = 14,
   MESSAGETYPE_SIGNTX = 15,
-  MESSAGETYPE_SIMPLESIGNTX = 16,
   MESSAGETYPE_FEATURES = 17,
   MESSAGETYPE_PINMATRIXREQUEST = 18,
   MESSAGETYPE_PINMATRIXACK = 19,
@@ -2702,5 +2655,11 @@ export enum MessageType {
   MESSAGETYPE_ETHEREUMSIGNMESSAGE = 108,
   MESSAGETYPE_ETHEREUMVERIFYMESSAGE = 109,
   MESSAGETYPE_ETHEREUMMESSAGESIGNATURE = 110,
+  MESSAGETYPE_EOSGETPUBLICKEY = 600,
+  MESSAGETYPE_EOSPUBLICKEY = 601,
+  MESSAGETYPE_EOSSIGNTX = 602,
+  MESSAGETYPE_EOSTXACTIONREQUEST = 603,
+  MESSAGETYPE_EOSTXACTIONACK = 604,
+  MESSAGETYPE_EOSSIGNEDTX = 605,
 }
 

@@ -117,16 +117,6 @@ export class CoinType extends jspb.Message {
   getAddressTypeP2sh(): number | undefined;
   setAddressTypeP2sh(value: number): void;
 
-  hasAddressTypeP2wpkh(): boolean;
-  clearAddressTypeP2wpkh(): void;
-  getAddressTypeP2wpkh(): number | undefined;
-  setAddressTypeP2wpkh(value: number): void;
-
-  hasAddressTypeP2wsh(): boolean;
-  clearAddressTypeP2wsh(): void;
-  getAddressTypeP2wsh(): number | undefined;
-  setAddressTypeP2wsh(value: number): void;
-
   hasSignedMessageHeader(): boolean;
   clearSignedMessageHeader(): void;
   getSignedMessageHeader(): string | undefined;
@@ -154,22 +144,10 @@ export class CoinType extends jspb.Message {
   getContractAddress_asB64(): string;
   setContractAddress(value: Uint8Array | string): void;
 
-  hasGasLimit(): boolean;
-  clearGasLimit(): void;
-  getGasLimit(): Uint8Array | string;
-  getGasLimit_asU8(): Uint8Array;
-  getGasLimit_asB64(): string;
-  setGasLimit(value: Uint8Array | string): void;
-
   hasXpubMagic(): boolean;
   clearXpubMagic(): void;
   getXpubMagic(): number | undefined;
   setXpubMagic(value: number): void;
-
-  hasXprvMagic(): boolean;
-  clearXprvMagic(): void;
-  getXprvMagic(): number | undefined;
-  setXprvMagic(value: number): void;
 
   hasSegwit(): boolean;
   clearSegwit(): void;
@@ -201,11 +179,6 @@ export class CoinType extends jspb.Message {
   getDecred(): boolean | undefined;
   setDecred(value: boolean): void;
 
-  hasVersionGroupId(): boolean;
-  clearVersionGroupId(): void;
-  getVersionGroupId(): number | undefined;
-  setVersionGroupId(value: number): void;
-
   hasXpubMagicSegwitP2sh(): boolean;
   clearXpubMagicSegwitP2sh(): void;
   getXpubMagicSegwitP2sh(): number | undefined;
@@ -233,23 +206,18 @@ export namespace CoinType {
     addressType?: number,
     maxfeeKb?: number,
     addressTypeP2sh?: number,
-    addressTypeP2wpkh?: number,
-    addressTypeP2wsh?: number,
     signedMessageHeader?: string,
     bip44AccountPath?: number,
     forkid?: number,
     decimals?: number,
     contractAddress: Uint8Array | string,
-    gasLimit: Uint8Array | string,
     xpubMagic?: number,
-    xprvMagic?: number,
     segwit?: boolean,
     forceBip143?: boolean,
     curveName?: string,
     cashaddrPrefix?: string,
     bech32Prefix?: string,
     decred?: boolean,
-    versionGroupId?: number,
     xpubMagicSegwitP2sh?: number,
     xpubMagicSegwitNative?: number,
   }
@@ -876,6 +844,9 @@ export enum ButtonRequestType {
   BUTTONREQUEST_SIGNEXCHANGE = 30,
   BUTTONREQUEST_AUTOLOCKDELAYMS = 31,
   BUTTONREQUEST_U2FCOUNTER = 32,
+  BUTTONREQUEST_CONFIRMEOSACTION = 33,
+  BUTTONREQUEST_CONFIRMEOSBUDGET = 34,
+  BUTTONREQUEST_CONFIRMMEMO = 35,
 }
 
 export enum PinMatrixRequestType {

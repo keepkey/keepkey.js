@@ -78,7 +78,6 @@ goog.exportSymbol('proto.SignIdentity', null, global);
 goog.exportSymbol('proto.SignMessage', null, global);
 goog.exportSymbol('proto.SignTx', null, global);
 goog.exportSymbol('proto.SignedIdentity', null, global);
-goog.exportSymbol('proto.SimpleSignTx', null, global);
 goog.exportSymbol('proto.SoftReset', null, global);
 goog.exportSymbol('proto.Success', null, global);
 goog.exportSymbol('proto.TxAck', null, global);
@@ -5742,7 +5741,8 @@ proto.EthereumAddress.prototype.toObject = function(opt_includeInstance) {
  */
 proto.EthereumAddress.toObject = function(includeInstance, msg) {
   var f, obj = {
-    address: msg.getAddress_asB64()
+    address: msg.getAddress_asB64(),
+    addressStr: jspb.Message.getField(msg, 2)
   };
 
   if (includeInstance) {
@@ -5783,6 +5783,10 @@ proto.EthereumAddress.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setAddress(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAddressStr(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -5816,6 +5820,13 @@ proto.EthereumAddress.serializeBinaryToWriter = function(message, writer) {
   if (f != null) {
     writer.writeBytes(
       1,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 2));
+  if (f != null) {
+    writer.writeString(
+      2,
       f
     );
   }
@@ -5872,6 +5883,35 @@ proto.EthereumAddress.prototype.clearAddress = function() {
  */
 proto.EthereumAddress.prototype.hasAddress = function() {
   return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional string address_str = 2;
+ * @return {string}
+ */
+proto.EthereumAddress.prototype.getAddressStr = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/** @param {string} value */
+proto.EthereumAddress.prototype.setAddressStr = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+proto.EthereumAddress.prototype.clearAddressStr = function() {
+  jspb.Message.setField(this, 2, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.EthereumAddress.prototype.hasAddressStr = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -7242,7 +7282,9 @@ proto.RecoveryDevice.toObject = function(includeInstance, msg) {
     label: jspb.Message.getField(msg, 5),
     enforceWordlist: jspb.Message.getField(msg, 6),
     useCharacterCipher: jspb.Message.getField(msg, 7),
-    autoLockDelayMs: jspb.Message.getField(msg, 8)
+    autoLockDelayMs: jspb.Message.getField(msg, 8),
+    u2fCounter: jspb.Message.getField(msg, 9),
+    dryRun: jspb.Message.getField(msg, 10)
   };
 
   if (includeInstance) {
@@ -7310,6 +7352,14 @@ proto.RecoveryDevice.deserializeBinaryFromReader = function(msg, reader) {
     case 8:
       var value = /** @type {number} */ (reader.readUint32());
       msg.setAutoLockDelayMs(value);
+      break;
+    case 9:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setU2fCounter(value);
+      break;
+    case 10:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setDryRun(value);
       break;
     default:
       reader.skipField();
@@ -7393,6 +7443,20 @@ proto.RecoveryDevice.serializeBinaryToWriter = function(message, writer) {
   if (f != null) {
     writer.writeUint32(
       8,
+      f
+    );
+  }
+  f = /** @type {number} */ (jspb.Message.getField(message, 9));
+  if (f != null) {
+    writer.writeUint32(
+      9,
+      f
+    );
+  }
+  f = /** @type {boolean} */ (jspb.Message.getField(message, 10));
+  if (f != null) {
+    writer.writeBool(
+      10,
       f
     );
   }
@@ -7636,6 +7700,66 @@ proto.RecoveryDevice.prototype.clearAutoLockDelayMs = function() {
  */
 proto.RecoveryDevice.prototype.hasAutoLockDelayMs = function() {
   return jspb.Message.getField(this, 8) != null;
+};
+
+
+/**
+ * optional uint32 u2f_counter = 9;
+ * @return {number}
+ */
+proto.RecoveryDevice.prototype.getU2fCounter = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+};
+
+
+/** @param {number} value */
+proto.RecoveryDevice.prototype.setU2fCounter = function(value) {
+  jspb.Message.setField(this, 9, value);
+};
+
+
+proto.RecoveryDevice.prototype.clearU2fCounter = function() {
+  jspb.Message.setField(this, 9, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.RecoveryDevice.prototype.hasU2fCounter = function() {
+  return jspb.Message.getField(this, 9) != null;
+};
+
+
+/**
+ * optional bool dry_run = 10;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.RecoveryDevice.prototype.getDryRun = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 10, false));
+};
+
+
+/** @param {boolean} value */
+proto.RecoveryDevice.prototype.setDryRun = function(value) {
+  jspb.Message.setField(this, 10, value);
+};
+
+
+proto.RecoveryDevice.prototype.clearDryRun = function() {
+  jspb.Message.setField(this, 10, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.RecoveryDevice.prototype.hasDryRun = function() {
+  return jspb.Message.getField(this, 10) != null;
 };
 
 
@@ -11952,473 +12076,6 @@ proto.SignTx.prototype.clearVersionGroupId = function() {
  * @return {!boolean}
  */
 proto.SignTx.prototype.hasVersionGroupId = function() {
-  return jspb.Message.getField(this, 8) != null;
-};
-
-
-
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.SimpleSignTx = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.SimpleSignTx.repeatedFields_, null);
-};
-goog.inherits(proto.SimpleSignTx, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  proto.SimpleSignTx.displayName = 'proto.SimpleSignTx';
-}
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.SimpleSignTx.repeatedFields_ = [1,2,3];
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto suitable for use in Soy templates.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
- * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
- *     for transitional soy proto support: http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.SimpleSignTx.prototype.toObject = function(opt_includeInstance) {
-  return proto.SimpleSignTx.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Whether to include the JSPB
- *     instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.SimpleSignTx} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.SimpleSignTx.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    inputsList: jspb.Message.toObjectList(msg.getInputsList(),
-    types_pb.TxInputType.toObject, includeInstance),
-    outputsList: jspb.Message.toObjectList(msg.getOutputsList(),
-    types_pb.TxOutputType.toObject, includeInstance),
-    transactionsList: jspb.Message.toObjectList(msg.getTransactionsList(),
-    types_pb.TransactionType.toObject, includeInstance),
-    coinName: jspb.Message.getFieldWithDefault(msg, 4, "Bitcoin"),
-    version: jspb.Message.getFieldWithDefault(msg, 5, 1),
-    lockTime: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    expiry: jspb.Message.getField(msg, 7),
-    overwintered: jspb.Message.getField(msg, 8)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.SimpleSignTx}
- */
-proto.SimpleSignTx.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.SimpleSignTx;
-  return proto.SimpleSignTx.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.SimpleSignTx} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.SimpleSignTx}
- */
-proto.SimpleSignTx.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new types_pb.TxInputType;
-      reader.readMessage(value,types_pb.TxInputType.deserializeBinaryFromReader);
-      msg.addInputs(value);
-      break;
-    case 2:
-      var value = new types_pb.TxOutputType;
-      reader.readMessage(value,types_pb.TxOutputType.deserializeBinaryFromReader);
-      msg.addOutputs(value);
-      break;
-    case 3:
-      var value = new types_pb.TransactionType;
-      reader.readMessage(value,types_pb.TransactionType.deserializeBinaryFromReader);
-      msg.addTransactions(value);
-      break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setCoinName(value);
-      break;
-    case 5:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setVersion(value);
-      break;
-    case 6:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setLockTime(value);
-      break;
-    case 7:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setExpiry(value);
-      break;
-    case 8:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setOverwintered(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.SimpleSignTx.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.SimpleSignTx.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.SimpleSignTx} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.SimpleSignTx.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getInputsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      types_pb.TxInputType.serializeBinaryToWriter
-    );
-  }
-  f = message.getOutputsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      2,
-      f,
-      types_pb.TxOutputType.serializeBinaryToWriter
-    );
-  }
-  f = message.getTransactionsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      3,
-      f,
-      types_pb.TransactionType.serializeBinaryToWriter
-    );
-  }
-  f = /** @type {string} */ (jspb.Message.getField(message, 4));
-  if (f != null) {
-    writer.writeString(
-      4,
-      f
-    );
-  }
-  f = /** @type {number} */ (jspb.Message.getField(message, 5));
-  if (f != null) {
-    writer.writeUint32(
-      5,
-      f
-    );
-  }
-  f = /** @type {number} */ (jspb.Message.getField(message, 6));
-  if (f != null) {
-    writer.writeUint32(
-      6,
-      f
-    );
-  }
-  f = /** @type {number} */ (jspb.Message.getField(message, 7));
-  if (f != null) {
-    writer.writeUint32(
-      7,
-      f
-    );
-  }
-  f = /** @type {boolean} */ (jspb.Message.getField(message, 8));
-  if (f != null) {
-    writer.writeBool(
-      8,
-      f
-    );
-  }
-};
-
-
-/**
- * repeated TxInputType inputs = 1;
- * @return {!Array<!proto.TxInputType>}
- */
-proto.SimpleSignTx.prototype.getInputsList = function() {
-  return /** @type{!Array<!proto.TxInputType>} */ (
-    jspb.Message.getRepeatedWrapperField(this, types_pb.TxInputType, 1));
-};
-
-
-/** @param {!Array<!proto.TxInputType>} value */
-proto.SimpleSignTx.prototype.setInputsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
-
-/**
- * @param {!proto.TxInputType=} opt_value
- * @param {number=} opt_index
- * @return {!proto.TxInputType}
- */
-proto.SimpleSignTx.prototype.addInputs = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.TxInputType, opt_index);
-};
-
-
-proto.SimpleSignTx.prototype.clearInputsList = function() {
-  this.setInputsList([]);
-};
-
-
-/**
- * repeated TxOutputType outputs = 2;
- * @return {!Array<!proto.TxOutputType>}
- */
-proto.SimpleSignTx.prototype.getOutputsList = function() {
-  return /** @type{!Array<!proto.TxOutputType>} */ (
-    jspb.Message.getRepeatedWrapperField(this, types_pb.TxOutputType, 2));
-};
-
-
-/** @param {!Array<!proto.TxOutputType>} value */
-proto.SimpleSignTx.prototype.setOutputsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
-};
-
-
-/**
- * @param {!proto.TxOutputType=} opt_value
- * @param {number=} opt_index
- * @return {!proto.TxOutputType}
- */
-proto.SimpleSignTx.prototype.addOutputs = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 2, opt_value, proto.TxOutputType, opt_index);
-};
-
-
-proto.SimpleSignTx.prototype.clearOutputsList = function() {
-  this.setOutputsList([]);
-};
-
-
-/**
- * repeated TransactionType transactions = 3;
- * @return {!Array<!proto.TransactionType>}
- */
-proto.SimpleSignTx.prototype.getTransactionsList = function() {
-  return /** @type{!Array<!proto.TransactionType>} */ (
-    jspb.Message.getRepeatedWrapperField(this, types_pb.TransactionType, 3));
-};
-
-
-/** @param {!Array<!proto.TransactionType>} value */
-proto.SimpleSignTx.prototype.setTransactionsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 3, value);
-};
-
-
-/**
- * @param {!proto.TransactionType=} opt_value
- * @param {number=} opt_index
- * @return {!proto.TransactionType}
- */
-proto.SimpleSignTx.prototype.addTransactions = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 3, opt_value, proto.TransactionType, opt_index);
-};
-
-
-proto.SimpleSignTx.prototype.clearTransactionsList = function() {
-  this.setTransactionsList([]);
-};
-
-
-/**
- * optional string coin_name = 4;
- * @return {string}
- */
-proto.SimpleSignTx.prototype.getCoinName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, "Bitcoin"));
-};
-
-
-/** @param {string} value */
-proto.SimpleSignTx.prototype.setCoinName = function(value) {
-  jspb.Message.setField(this, 4, value);
-};
-
-
-proto.SimpleSignTx.prototype.clearCoinName = function() {
-  jspb.Message.setField(this, 4, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.SimpleSignTx.prototype.hasCoinName = function() {
-  return jspb.Message.getField(this, 4) != null;
-};
-
-
-/**
- * optional uint32 version = 5;
- * @return {number}
- */
-proto.SimpleSignTx.prototype.getVersion = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 1));
-};
-
-
-/** @param {number} value */
-proto.SimpleSignTx.prototype.setVersion = function(value) {
-  jspb.Message.setField(this, 5, value);
-};
-
-
-proto.SimpleSignTx.prototype.clearVersion = function() {
-  jspb.Message.setField(this, 5, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.SimpleSignTx.prototype.hasVersion = function() {
-  return jspb.Message.getField(this, 5) != null;
-};
-
-
-/**
- * optional uint32 lock_time = 6;
- * @return {number}
- */
-proto.SimpleSignTx.prototype.getLockTime = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
-};
-
-
-/** @param {number} value */
-proto.SimpleSignTx.prototype.setLockTime = function(value) {
-  jspb.Message.setField(this, 6, value);
-};
-
-
-proto.SimpleSignTx.prototype.clearLockTime = function() {
-  jspb.Message.setField(this, 6, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.SimpleSignTx.prototype.hasLockTime = function() {
-  return jspb.Message.getField(this, 6) != null;
-};
-
-
-/**
- * optional uint32 expiry = 7;
- * @return {number}
- */
-proto.SimpleSignTx.prototype.getExpiry = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
-};
-
-
-/** @param {number} value */
-proto.SimpleSignTx.prototype.setExpiry = function(value) {
-  jspb.Message.setField(this, 7, value);
-};
-
-
-proto.SimpleSignTx.prototype.clearExpiry = function() {
-  jspb.Message.setField(this, 7, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.SimpleSignTx.prototype.hasExpiry = function() {
-  return jspb.Message.getField(this, 7) != null;
-};
-
-
-/**
- * optional bool overwintered = 8;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
- */
-proto.SimpleSignTx.prototype.getOverwintered = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 8, false));
-};
-
-
-/** @param {boolean} value */
-proto.SimpleSignTx.prototype.setOverwintered = function(value) {
-  jspb.Message.setField(this, 8, value);
-};
-
-
-proto.SimpleSignTx.prototype.clearOverwintered = function() {
-  jspb.Message.setField(this, 8, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.SimpleSignTx.prototype.hasOverwintered = function() {
   return jspb.Message.getField(this, 8) != null;
 };
 
@@ -19251,7 +18908,6 @@ proto.MessageType = {
   MESSAGETYPE_LOADDEVICE: 13,
   MESSAGETYPE_RESETDEVICE: 14,
   MESSAGETYPE_SIGNTX: 15,
-  MESSAGETYPE_SIMPLESIGNTX: 16,
   MESSAGETYPE_FEATURES: 17,
   MESSAGETYPE_PINMATRIXREQUEST: 18,
   MESSAGETYPE_PINMATRIXACK: 19,
@@ -19310,7 +18966,13 @@ proto.MessageType = {
   MESSAGETYPE_COINTABLE: 107,
   MESSAGETYPE_ETHEREUMSIGNMESSAGE: 108,
   MESSAGETYPE_ETHEREUMVERIFYMESSAGE: 109,
-  MESSAGETYPE_ETHEREUMMESSAGESIGNATURE: 110
+  MESSAGETYPE_ETHEREUMMESSAGESIGNATURE: 110,
+  MESSAGETYPE_EOSGETPUBLICKEY: 600,
+  MESSAGETYPE_EOSPUBLICKEY: 601,
+  MESSAGETYPE_EOSSIGNTX: 602,
+  MESSAGETYPE_EOSTXACTIONREQUEST: 603,
+  MESSAGETYPE_EOSTXACTIONACK: 604,
+  MESSAGETYPE_EOSSIGNEDTX: 605
 };
 
 goog.object.extend(exports, proto);

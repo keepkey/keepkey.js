@@ -175,8 +175,8 @@ export default class KeepKey {
     getAddr.setShowDisplay(a.showDisplay)
     // send, receive ethereumaddress message
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr)
-    const { addressNList } = (response as Messages.EthereumGetAddress).toObject()
-    return addressNList.join('')
+    const { address, addressStr } = (response as Messages.EthereumAddress).toObject()
+    return addressStr || ('0x' + (address as string))
   }
 
   // Sign an ethereum transaction using a given node path
@@ -334,8 +334,7 @@ export default class KeepKey {
           coinShortcut: symbol,
           bip44AccountPath: coinType.bip44AccountPath,
           curveName: coinType.curveName,
-          coinName: coinType.coinName,
-          gasLimit: coinType.gasLimit
+          coinName: coinType.coinName
         }
       })
     }
