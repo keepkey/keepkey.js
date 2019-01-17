@@ -53,18 +53,16 @@ export default class WebUSBDevice extends Device {
 
   // This must return a tuple of [returnedBuffer, entireBufferThatWasSent], concatenating if
   // buffers were sent in chunks
-  public async sendRaw (buffer: ByteBuffer): Promise<ByteBuffer[]> {
+  public async sendRaw (buffer: ByteBuffer): Promise<ByteBuffer> {
     // Temporarily removing queue to debug overflow error potentially caused by concurrent sends
     return this.queue.add(async () => {
-      const entireBuffer = await this.write(buffer)
-      const responseBuffer = await this.read()
-      return [responseBuffer, entireBuffer]
+      await this.write(buffer)
+      return this.read()
     })
   }
 
-  protected async write (buff: ByteBuffer): Promise<ByteBuffer> {
+  protected async write (buff: ByteBuffer): Promise<void> {
     // break frame into segments
-    let entireBuffer
     for (let i = 0; i < buff.limit; i += SEGMENT_SIZE) {
       let segment = buff.toArrayBuffer().slice(i, i + SEGMENT_SIZE)
       let padding = new Array(SEGMENT_SIZE - segment.byteLength + 1).join('\0')
@@ -74,10 +72,7 @@ export default class WebUSBDevice extends Device {
       fragments.push(padding)
       const fragmentBuffer = ByteBuffer.concat(fragments)
       await this.writeChunk(fragmentBuffer)
-      if (!entireBuffer) entireBuffer = fragmentBuffer
-      else entireBuffer = ByteBuffer.concat([entireBuffer, fragmentBuffer])
     }
-    return entireBuffer
   }
 
   protected async read (): Promise<ByteBuffer> {
