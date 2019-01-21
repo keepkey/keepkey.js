@@ -66,4 +66,13 @@ describe('utils', () => {
       expect(() => utils.bip32ToAddressNList(`/44'/60'/0'/0/0`)).toThrow()
     })
   })
+
+  describe('bip32Like', () => {
+    test('returns true if path is valid', () => {
+      expect(utils.bip32Like(`m/`)).toEqual(true)
+    })
+    test('returns false otherwise', () => {
+      expect(utils.bip32Like(`/44'/60'/0'/0/0`)).toEqual(false)
+    })
+  })
 })
