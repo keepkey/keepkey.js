@@ -60,3 +60,14 @@ export function arrayify (value: string): Uint8Array {
     return new Uint8Array(result)
   }
 }
+
+const harden = 0x80000000
+export function bip32ToAddressNList (address: string): number[] {
+  if (address.charAt(0) !== 'm') throw new Error('Unrecognized bip32 path')
+  address = address.slice(1, address.length)
+  return address.split('/').filter(part => part.length).map(part => {
+    const insertHarden = part.indexOf(`'`) > -1
+    const num = parseFloat(part)
+    return insertHarden ? harden | num : num
+  })
+}

@@ -54,4 +54,13 @@ describe('utils', () => {
       expect(utils.fromHexString('!')).toEqual(new Uint8Array([0]))
     })
   })
+
+  describe('bip32ToAddressNList', () => {
+    test('formats return value correctly', () => {
+      expect(utils.bip32ToAddressNList(`m/44'/60'/0'/0/0`)).toEqual([ -2147483604, -2147483588, -2147483648, 0, 0 ])
+    })
+    test('throws when given an incorrect bip32 path', () => {
+      expect(() => utils.bip32ToAddressNList(`/44'/60'/0'/0/0`)).toThrow()
+    })
+  })
 })
