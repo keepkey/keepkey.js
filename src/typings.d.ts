@@ -1,4 +1,4 @@
-type Interface = 'StandardWebUSB' | 'DebugWebUSB'
+type Interface = 'StandardWebUSB' | 'DebugWebUSB' | 'StandardHID'
 
 declare module '*.json' {
   const value: any
