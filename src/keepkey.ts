@@ -172,11 +172,18 @@ export default class KeepKey {
   public async ethereumGetAddress (a: Messages.EthereumGetAddress.AsObject): Promise<string> {
     const getAddr = new Messages.EthereumGetAddress()
     getAddr.setAddressNList(a.addressNList)
-    getAddr.setShowDisplay(a.showDisplay)
+    getAddr.setShowDisplay(a.showDisplay !== false)
     // send, receive ethereumaddress message
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr)
-    const { address, addressStr } = (response as Messages.EthereumAddress).toObject()
-    return addressStr || ('0x' + (address as string))
+    const ethAddress = response as Messages.EthereumAddress
+
+    if (ethAddress.hasAddressStr()) {
+      return ethAddress.getAddressStr()
+    } else if (ethAddress.hasAddress()) {
+      return '0x' + toHexString(ethAddress.getAddress_asU8())
+    }
+
+    throw new Error('unable to obtain eth address from device')
   }
 
   // Sign an ethereum transaction using a given node path
@@ -277,7 +284,7 @@ export default class KeepKey {
     const address = new Messages.GetAddress()
     address.setAddressNList(g.addressNList)
     address.setCoinName(g.coinName)
-    address.setShowDisplay(g.showDisplay || true)
+    address.setShowDisplay(g.showDisplay !== false)
     address.setScriptType(g.scriptType || Types.InputScriptType.SPENDADDRESS)
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETADDRESS, address)
     const msg = (response as Messages.Address).toObject()
