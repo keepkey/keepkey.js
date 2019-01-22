@@ -177,16 +177,13 @@ export default class KeepKey {
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr)
     const ethAddress = response as Messages.EthereumAddress
 
-    let result
     if (ethAddress.hasAddressStr()) {
-      result = ethAddress.getAddressStr()
+      return ethAddress.getAddressStr()
     } else if (ethAddress.hasAddress()) {
-      result = '0x' + toHexString(ethAddress.getAddress_asU8())
-    } else {
-      console.log(`unable to obtain eth address from device`)
+      return '0x' + toHexString(ethAddress.getAddress_asU8())
     }
 
-    return result
+    throw new Error('unable to obtain eth address from device')
   }
 
   // Sign an ethereum transaction using a given node path
