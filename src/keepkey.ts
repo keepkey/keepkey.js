@@ -411,7 +411,7 @@ export default class KeepKey {
     if (r.autoLockDelayMs) {
       msg.setAutoLockDelayMs(r.autoLockDelayMs)
     }
-    const epoch = Math.floor(new Date() / 1000)
+    const epoch = Math.floor(+new Date() / 1000)
     msg.setU2fCounter(r.u2fCounter || epoch)
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_RECOVERYDEVICE, msg)
   }
@@ -548,7 +548,7 @@ export default class KeepKey {
     if (r.autoLockDelayMs) {
       resetDevice.setAutoLockDelayMs(r.autoLockDelayMs)
     }
-    const epoch = Math.floor(new Date() / 1000)
+    const epoch = Math.floor(+new Date() / 1000)
     resetDevice.setU2fCounter(r.u2fCounter || epoch)
     // resetDevice.setWordsPerGape(wordsPerScreen) // Re-enable when patch gets in
     // Send
