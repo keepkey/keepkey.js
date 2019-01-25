@@ -2,7 +2,13 @@ import Device from './device'
 import Types from './kkProto/types_pb'
 import Messages from './kkProto/messages_pb'
 import Exchanges from './kkProto/exchange_pb'
-import { fromHexString, toHexString, arrayify, protoFieldToSetMethod } from './utils'
+import {
+  fromHexString,
+  toHexString,
+  arrayify,
+  protoFieldToSetMethod,
+  bip32ToAddressNList
+} from './utils'
 import WebUSBDevice, { WebUSBDeviceConfig } from './webUSBDevice'
 import { Event } from './event'
 import messageTypeRegistry from './messageTypeRegistry'
@@ -256,6 +262,27 @@ export default class KeepKey {
       s: '0x' + toHexString(response.getSignatureS_asU8()),
       v: '0x' + response.getSignatureV().toString(16)
     }
+  }
+
+  public async ethereumSignMessage (m: Messages.EthereumSignMessage.AsObject): Promise<any> {
+    const msg = new Messages.EthereumSignMessage()
+    msg.setAddressNList(m.addressNList || bip32ToAddressNList("m/44'/60'/0'/0/0"))
+    msg.setMessage(m.message)
+    const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, msg)
+    const sig = (response as Messages.EthereumMessageSignature).toObject()
+    return {
+      address: sig.address,
+      signature: sig.signature
+    }
+  }
+
+  public async ethereumVerifyMessage (m: Messages.EthereumVerifyMessage.AsObject): Promise<any> {
+    const msg = new Messages.EthereumVerifyMessage()
+    msg.setAddress(m.address)
+    msg.setSignature(m.signature)
+    msg.setMessage(m.message)
+    const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, msg)
+    return typeof response === typeof Messages.Success
   }
 
   // FirmwareErase askes the device to erase its firmware
