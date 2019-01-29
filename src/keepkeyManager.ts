@@ -23,7 +23,7 @@ export default class KeepKeyManager {
     this.onDisconnectCallback = config.onDisconnectCallback || defaultUSBDeviceCallback
 
     // If we have access to WebUSB, register callbacks
-    if (window.navigator.usb) {
+    if (typeof window !== 'undefined' && window.navigator.usb) {
       window.navigator.usb.onconnect = this.handleConnectKeepKey.bind(this)
       window.navigator.usb.ondisconnect = this.handleDisconnectKeepKey.bind(this)
     }
@@ -65,13 +65,11 @@ export default class KeepKeyManager {
     hidConfig?: HIDDeviceConfig,
     devices?: USBDevice[]
   ): Promise<number> {
-    if (!window.navigator.usb) throw new Error('WebUSB not supported in your browser!')
     let devicesToInitialize = devices
-    // if (!devicesToInitialize) devicesToInitialize = await window.navigator.usb.getDevices()
     if (!devicesToInitialize) devicesToInitialize = []
     for (let i = 0; i < devicesToInitialize.length; i++) {
-      const usbDevice = devicesToInitialize[i]
-      let k = KeepKey.withHID({ usbDevice, ...hidConfig })
+      const hidDevice = devicesToInitialize[i]
+      let k = KeepKey.withHID({ hidDevice, ...hidConfig })
       const features = await k.initialize()
       if (features) this.add(k, features.deviceId)
     }
