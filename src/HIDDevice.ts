@@ -107,6 +107,7 @@ export default class HIDDevice extends Device {
         currentBufferIndex++
       }
 
+      this.bufferQueue = []
       return ByteBuffer.wrap(buffer)
     } else {
       console.error('Invalid message', { msgLength, valid, first })
