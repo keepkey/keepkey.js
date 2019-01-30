@@ -1,3 +1,4 @@
+import * as Messages from './kkProto/messages_pb'
 import * as utils from './utils'
 
 describe('utils', () => {
@@ -57,13 +58,20 @@ describe('utils', () => {
 
   describe('bip32ToAddressNList', () => {
     test('formats return value correctly', () => {
-      expect(utils.bip32ToAddressNList(`m/44'/60'/0'/0/0`)).toEqual([ -2147483604, -2147483588, -2147483648, 0, 0 ])
+      expect(utils.bip32ToAddressNList(`m/44'/60'/0'/0/0`)).toEqual([2147483692, 2147483708, 2147483648, 0, 0])
     })
     test('will always return an array if the path looks valid', () => {
       expect(utils.bip32ToAddressNList(`m/`)).toEqual([])
     })
     test('throws when given an incorrect bip32 path', () => {
       expect(() => utils.bip32ToAddressNList(`/44'/60'/0'/0/0`)).toThrow()
+    })
+    test('doesnt throw when being used to build proto messages', () => {
+      expect(() => {
+        const nodePath = utils.bip32ToAddressNList(`m/44'/60'/0'/0/0`)
+        const est = new Messages.EthereumSignTx()
+        est.setAddressNList(nodePath)
+      }).not.toThrow()
     })
   })
 
