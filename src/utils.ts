@@ -38,7 +38,7 @@ export function arrayify (value: string): Uint8Array {
     throw new Error('cannot convert null value to array')
   }
 
-  if (typeof(value) === 'string') {
+  if (typeof (value) === 'string') {
     let match = value.match(/^(0x)?[0-9a-fA-F]*$/)
 
     if (!match) {
@@ -61,15 +61,30 @@ export function arrayify (value: string): Uint8Array {
   }
 }
 
-const harden = 0x80000000
+const HARDENED = 0x80000000
 export function bip32ToAddressNList (address: string): number[] {
-  if (!bip32Like(address)) throw new Error('Unrecognized bip32 path')
-  address = address.slice(1, address.length)
-  return address.split('/').filter(part => part.length).map(part => {
-    const insertHarden = part.indexOf(`'`) > -1
-    const num = parseFloat(part)
-    return insertHarden ? harden | num : num
-  })
+  if (/^m\//i.test(address)) {
+    address = address.slice(2)
+  }
+  const path = address.split('/')
+  if (path.length === 1 && path[0] === '') return []
+  const ret = new Array(path.length)
+  for (let i = 0; i < path.length; i++) {
+    const tmp = /(\d+)([hH\']?)/.exec(path[i])
+    if (tmp === null) {
+      throw new Error('Invalid input')
+    }
+    ret[i] = parseInt(tmp[1], 10)
+    if (ret[i] >= HARDENED) {
+      throw new Error('Invalid child index')
+    }
+    if (tmp[2] === 'h' || tmp[2] === 'H' || tmp[2] === '\'') {
+      ret[i] += HARDENED
+    } else if (tmp[2].length !== 0) {
+      throw new Error('Invalid modifier')
+    }
+  }
+  return ret
 }
 
 export function bip32Like (address: string): boolean {
