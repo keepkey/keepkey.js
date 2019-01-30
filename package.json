@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/keepkey.js",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "",
   "keywords": [
     "crypto",
@@ -29,9 +29,12 @@
     "copy:protos": "cp ./node_modules/device-protocol/exchange.proto ./node_modules/device-protocol/types.proto ./node_modules/device-protocol/messages.proto .",
     "gen:protos": "protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --js_out=import_style=commonjs,binary:./src/kkProto --ts_out=./src/kkProto exchange.proto types.proto messages.proto",
     "build:json": "pbjs --keep-case -t json ./node_modules/device-protocol/types.proto ./node_modules/device-protocol/messages.proto ./node_modules/device-protocol/exchange.proto > ./src/proto.json",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts && rollup -c rollup.browser.ts && typedoc --out docs --target es6 --theme minimal --mode file src && cp -r src/kkProto src/proto.json ./dist/lib",
-    "dev": "rollup -c rollup.config.ts -w",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts && yarn build:browser && typedoc --out docs --target es6 --theme minimal --mode file src && cp -r src/kkProto src/proto.json ./dist/lib",
+    "build:browser": "rollup -c rollup.browser.ts",
+    "dev": "yarn build && rollup -c rollup.config.ts -w",
     "dev:example": "rollup -c rollup.browser.ts -w -o example/js/vendor/keepkey.browser.js",
+    "dev:browser": "yarn build && rollup -c rollup.browser.ts -w",
+    "dev:browser:custom": "rollup -c rollup.browser.ts -w -o $OUT/keepkey.browser.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:prod": "npm run lint && npm run test -- --coverage --no-cache",

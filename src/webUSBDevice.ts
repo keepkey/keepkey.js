@@ -44,7 +44,12 @@ export default class WebUSBDevice extends Device {
 
   public async disconnect (): Promise<void> {
     if (!this.usbDevice.opened) return
-    return this.usbDevice.releaseInterface(0)
+    try {
+      // If the device is disconnected, this will fail and throw, which is fine.
+      await this.usbDevice.releaseInterface(0)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   public getEntropy (length: number = 64): Uint8Array {
