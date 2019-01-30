@@ -111,9 +111,20 @@ export default class KeepKey {
   // The default language is english
   public async applySettings (s: Messages.ApplySettings.AsObject): Promise<void> {
     const applySettings = new Messages.ApplySettings()
-    applySettings.setUsePassphrase(s.usePassphrase)
+    if (s.label) {
+      applySettings.setLabel(s.label)
+    }
     if (s.language) {
       applySettings.setLanguage(s.language)
+    }
+    if (s.usePassphrase !== undefined) {
+      applySettings.setUsePassphrase(s.usePassphrase)
+    }
+    if (s.autoLockDelayMs) {
+      applySettings.setAutoLockDelayMs(s.autoLockDelayMs)
+    }
+    if (s.u2fCounter) {
+      applySettings.setU2fCounter(s.u2fCounter)
     }
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_APPLYSETTINGS, applySettings)
   }
@@ -397,6 +408,11 @@ export default class KeepKey {
     msg.setLanguage(r.language || 'english')
     msg.setEnforceWordlist(true)
     msg.setUseCharacterCipher(true)
+    if (r.autoLockDelayMs) {
+      msg.setAutoLockDelayMs(r.autoLockDelayMs)
+    }
+    const epoch = Math.floor(+new Date() / 1000)
+    msg.setU2fCounter(r.u2fCounter || epoch)
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_RECOVERYDEVICE, msg)
   }
 
@@ -529,6 +545,11 @@ export default class KeepKey {
     resetDevice.setPassphraseProtection(r.passphraseProtection || false)
     resetDevice.setPinProtection(r.pinProtection || false)
     resetDevice.setLabel(r.label)
+    if (r.autoLockDelayMs) {
+      resetDevice.setAutoLockDelayMs(r.autoLockDelayMs)
+    }
+    const epoch = Math.floor(+new Date() / 1000)
+    resetDevice.setU2fCounter(r.u2fCounter || epoch)
     // resetDevice.setWordsPerGape(wordsPerScreen) // Re-enable when patch gets in
     // Send
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_RESETDEVICE, resetDevice)

@@ -1009,15 +1009,15 @@ proto.Features.prototype.hasLabel = function() {
 
 /**
  * repeated CoinType coins = 11;
- * @return {!Array<!proto.CoinType>}
+ * @return {!Array.<!proto.CoinType>}
  */
 proto.Features.prototype.getCoinsList = function() {
-  return /** @type{!Array<!proto.CoinType>} */ (
+  return /** @type{!Array.<!proto.CoinType>} */ (
     jspb.Message.getRepeatedWrapperField(this, types_pb.CoinType, 11));
 };
 
 
-/** @param {!Array<!proto.CoinType>} value */
+/** @param {!Array.<!proto.CoinType>} value */
 proto.Features.prototype.setCoinsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 11, value);
 };
@@ -1270,15 +1270,15 @@ proto.Features.prototype.hasPassphraseCached = function() {
 
 /**
  * repeated PolicyType policies = 18;
- * @return {!Array<!proto.PolicyType>}
+ * @return {!Array.<!proto.PolicyType>}
  */
 proto.Features.prototype.getPoliciesList = function() {
-  return /** @type{!Array<!proto.PolicyType>} */ (
+  return /** @type{!Array.<!proto.PolicyType>} */ (
     jspb.Message.getRepeatedWrapperField(this, types_pb.PolicyType, 18));
 };
 
 
-/** @param {!Array<!proto.PolicyType>} value */
+/** @param {!Array.<!proto.PolicyType>} value */
 proto.Features.prototype.setPoliciesList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 18, value);
 };
@@ -1801,15 +1801,15 @@ proto.CoinTable.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated CoinType table = 1;
- * @return {!Array<!proto.CoinType>}
+ * @return {!Array.<!proto.CoinType>}
  */
 proto.CoinTable.prototype.getTableList = function() {
-  return /** @type{!Array<!proto.CoinType>} */ (
+  return /** @type{!Array.<!proto.CoinType>} */ (
     jspb.Message.getRepeatedWrapperField(this, types_pb.CoinType, 1));
 };
 
 
-/** @param {!Array<!proto.CoinType>} value */
+/** @param {!Array.<!proto.CoinType>} value */
 proto.CoinTable.prototype.setTableList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
@@ -4655,14 +4655,14 @@ proto.GetPublicKey.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.GetPublicKey.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.GetPublicKey.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -5186,14 +5186,14 @@ proto.GetAddress.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.GetAddress.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.GetAddress.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -5480,14 +5480,14 @@ proto.EthereumGetAddress.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.EthereumGetAddress.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.EthereumGetAddress.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -6535,7 +6535,8 @@ proto.ResetDevice.toObject = function(includeInstance, msg) {
     language: jspb.Message.getFieldWithDefault(msg, 5, "english"),
     label: jspb.Message.getField(msg, 6),
     noBackup: jspb.Message.getField(msg, 7),
-    autoLockDelayMs: jspb.Message.getField(msg, 8)
+    autoLockDelayMs: jspb.Message.getField(msg, 8),
+    u2fCounter: jspb.Message.getField(msg, 9)
   };
 
   if (includeInstance) {
@@ -6603,6 +6604,10 @@ proto.ResetDevice.deserializeBinaryFromReader = function(msg, reader) {
     case 8:
       var value = /** @type {number} */ (reader.readUint32());
       msg.setAutoLockDelayMs(value);
+      break;
+    case 9:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setU2fCounter(value);
       break;
     default:
       reader.skipField();
@@ -6686,6 +6691,13 @@ proto.ResetDevice.serializeBinaryToWriter = function(message, writer) {
   if (f != null) {
     writer.writeUint32(
       8,
+      f
+    );
+  }
+  f = /** @type {number} */ (jspb.Message.getField(message, 9));
+  if (f != null) {
+    writer.writeUint32(
+      9,
       f
     );
   }
@@ -6929,6 +6941,35 @@ proto.ResetDevice.prototype.clearAutoLockDelayMs = function() {
  */
 proto.ResetDevice.prototype.hasAutoLockDelayMs = function() {
   return jspb.Message.getField(this, 8) != null;
+};
+
+
+/**
+ * optional uint32 u2f_counter = 9;
+ * @return {number}
+ */
+proto.ResetDevice.prototype.getU2fCounter = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+};
+
+
+/** @param {number} value */
+proto.ResetDevice.prototype.setU2fCounter = function(value) {
+  jspb.Message.setField(this, 9, value);
+};
+
+
+proto.ResetDevice.prototype.clearU2fCounter = function() {
+  jspb.Message.setField(this, 9, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.ResetDevice.prototype.hasU2fCounter = function() {
+  return jspb.Message.getField(this, 9) != null;
 };
 
 
@@ -8646,14 +8687,14 @@ proto.SignMessage.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.SignMessage.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.SignMessage.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -9653,14 +9694,14 @@ proto.EncryptMessage.prototype.hasDisplayOnly = function() {
 
 /**
  * repeated uint32 address_n = 4;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.EncryptMessage.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 4));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 4));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.EncryptMessage.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 4, value || []);
 };
@@ -10191,14 +10232,14 @@ proto.DecryptMessage.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.DecryptMessage.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.DecryptMessage.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -10806,14 +10847,14 @@ proto.CipherKeyValue.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.CipherKeyValue.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.CipherKeyValue.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -12960,14 +13001,14 @@ proto.EthereumSignTx.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.EthereumSignTx.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.EthereumSignTx.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -13336,14 +13377,14 @@ proto.EthereumSignTx.prototype.hasDataLength = function() {
 
 /**
  * repeated uint32 to_address_n = 9;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.EthereumSignTx.prototype.getToAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 9));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 9));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.EthereumSignTx.prototype.setToAddressNList = function(value) {
   jspb.Message.setField(this, 9, value || []);
 };
@@ -14400,14 +14441,14 @@ proto.EthereumSignMessage.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.EthereumSignMessage.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.EthereumSignMessage.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -15766,15 +15807,15 @@ proto.ApplyPolicies.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated PolicyType policy = 1;
- * @return {!Array<!proto.PolicyType>}
+ * @return {!Array.<!proto.PolicyType>}
  */
 proto.ApplyPolicies.prototype.getPolicyList = function() {
-  return /** @type{!Array<!proto.PolicyType>} */ (
+  return /** @type{!Array.<!proto.PolicyType>} */ (
     jspb.Message.getRepeatedWrapperField(this, types_pb.PolicyType, 1));
 };
 
 
-/** @param {!Array<!proto.PolicyType>} value */
+/** @param {!Array.<!proto.PolicyType>} value */
 proto.ApplyPolicies.prototype.setPolicyList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
 };

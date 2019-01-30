@@ -935,6 +935,11 @@ export class ResetDevice extends jspb.Message {
   getAutoLockDelayMs(): number | undefined;
   setAutoLockDelayMs(value: number): void;
 
+  hasU2fCounter(): boolean;
+  clearU2fCounter(): void;
+  getU2fCounter(): number | undefined;
+  setU2fCounter(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ResetDevice.AsObject;
   static toObject(includeInstance: boolean, msg: ResetDevice): ResetDevice.AsObject;
@@ -955,6 +960,7 @@ export namespace ResetDevice {
     label?: string,
     noBackup?: boolean,
     autoLockDelayMs?: number,
+    u2fCounter?: number,
   }
 }
 

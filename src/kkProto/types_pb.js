@@ -651,14 +651,14 @@ proto.HDNodePathType.prototype.hasNode = function() {
 
 /**
  * repeated uint32 address_n = 2;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.HDNodePathType.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 2));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 2));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.HDNodePathType.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 2, value || []);
 };
@@ -1765,15 +1765,15 @@ proto.MultisigRedeemScriptType.serializeBinaryToWriter = function(message, write
 
 /**
  * repeated HDNodePathType pubkeys = 1;
- * @return {!Array<!proto.HDNodePathType>}
+ * @return {!Array.<!proto.HDNodePathType>}
  */
 proto.MultisigRedeemScriptType.prototype.getPubkeysList = function() {
-  return /** @type{!Array<!proto.HDNodePathType>} */ (
+  return /** @type{!Array.<!proto.HDNodePathType>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.HDNodePathType, 1));
 };
 
 
-/** @param {!Array<!proto.HDNodePathType>} value */
+/** @param {!Array.<!proto.HDNodePathType>} value */
 proto.MultisigRedeemScriptType.prototype.setPubkeysList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
@@ -1806,10 +1806,10 @@ proto.MultisigRedeemScriptType.prototype.getSignaturesList = function() {
 /**
  * repeated bytes signatures = 2;
  * This is a type-conversion wrapper around `getSignaturesList()`
- * @return {!Array<string>}
+ * @return {!Array.<string>}
  */
 proto.MultisigRedeemScriptType.prototype.getSignaturesList_asB64 = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.bytesListAsB64(
+  return /** @type {!Array.<string>} */ (jspb.Message.bytesListAsB64(
       this.getSignaturesList()));
 };
 
@@ -1819,10 +1819,10 @@ proto.MultisigRedeemScriptType.prototype.getSignaturesList_asB64 = function() {
  * Note that Uint8Array is not supported on all browsers.
  * @see http://caniuse.com/Uint8Array
  * This is a type-conversion wrapper around `getSignaturesList()`
- * @return {!Array<!Uint8Array>}
+ * @return {!Array.<!Uint8Array>}
  */
 proto.MultisigRedeemScriptType.prototype.getSignaturesList_asU8 = function() {
-  return /** @type {!Array<!Uint8Array>} */ (jspb.Message.bytesListAsU8(
+  return /** @type {!Array.<!Uint8Array>} */ (jspb.Message.bytesListAsU8(
       this.getSignaturesList()));
 };
 
@@ -2122,14 +2122,14 @@ proto.TxInputType.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * repeated uint32 address_n = 1;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.TxInputType.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.TxInputType.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 1, value || []);
 };
@@ -2724,14 +2724,14 @@ proto.TxOutputType.prototype.hasAddress = function() {
 
 /**
  * repeated uint32 address_n = 2;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.TxOutputType.prototype.getAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 2));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 2));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.TxOutputType.prototype.setAddressNList = function(value) {
   jspb.Message.setField(this, 2, value || []);
 };
@@ -3536,15 +3536,15 @@ proto.TransactionType.prototype.hasVersion = function() {
 
 /**
  * repeated TxInputType inputs = 2;
- * @return {!Array<!proto.TxInputType>}
+ * @return {!Array.<!proto.TxInputType>}
  */
 proto.TransactionType.prototype.getInputsList = function() {
-  return /** @type{!Array<!proto.TxInputType>} */ (
+  return /** @type{!Array.<!proto.TxInputType>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.TxInputType, 2));
 };
 
 
-/** @param {!Array<!proto.TxInputType>} value */
+/** @param {!Array.<!proto.TxInputType>} value */
 proto.TransactionType.prototype.setInputsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
@@ -3567,15 +3567,15 @@ proto.TransactionType.prototype.clearInputsList = function() {
 
 /**
  * repeated TxOutputBinType bin_outputs = 3;
- * @return {!Array<!proto.TxOutputBinType>}
+ * @return {!Array.<!proto.TxOutputBinType>}
  */
 proto.TransactionType.prototype.getBinOutputsList = function() {
-  return /** @type{!Array<!proto.TxOutputBinType>} */ (
+  return /** @type{!Array.<!proto.TxOutputBinType>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.TxOutputBinType, 3));
 };
 
 
-/** @param {!Array<!proto.TxOutputBinType>} value */
+/** @param {!Array.<!proto.TxOutputBinType>} value */
 proto.TransactionType.prototype.setBinOutputsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 3, value);
 };
@@ -3598,15 +3598,15 @@ proto.TransactionType.prototype.clearBinOutputsList = function() {
 
 /**
  * repeated TxOutputType outputs = 5;
- * @return {!Array<!proto.TxOutputType>}
+ * @return {!Array.<!proto.TxOutputType>}
  */
 proto.TransactionType.prototype.getOutputsList = function() {
-  return /** @type{!Array<!proto.TxOutputType>} */ (
+  return /** @type{!Array.<!proto.TxOutputType>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.TxOutputType, 5));
 };
 
 
-/** @param {!Array<!proto.TxOutputType>} value */
+/** @param {!Array.<!proto.TxOutputType>} value */
 proto.TransactionType.prototype.setOutputsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 5, value);
 };
@@ -5418,14 +5418,14 @@ proto.ExchangeType.prototype.hasWithdrawalCoinName = function() {
 
 /**
  * repeated uint32 withdrawal_address_n = 3;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.ExchangeType.prototype.getWithdrawalAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 3));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 3));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.ExchangeType.prototype.setWithdrawalAddressNList = function(value) {
   jspb.Message.setField(this, 3, value || []);
 };
@@ -5447,14 +5447,14 @@ proto.ExchangeType.prototype.clearWithdrawalAddressNList = function() {
 
 /**
  * repeated uint32 return_address_n = 4;
- * @return {!Array<number>}
+ * @return {!Array.<number>}
  */
 proto.ExchangeType.prototype.getReturnAddressNList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 4));
+  return /** @type {!Array.<number>} */ (jspb.Message.getRepeatedField(this, 4));
 };
 
 
-/** @param {!Array<number>} value */
+/** @param {!Array.<number>} value */
 proto.ExchangeType.prototype.setReturnAddressNList = function(value) {
   jspb.Message.setField(this, 4, value || []);
 };
@@ -5591,7 +5591,7 @@ proto.PinMatrixRequestType = {
 /**
  * A tuple of {field number, class constructor} for the extension
  * field named `wireIn`.
- * @type {!jspb.ExtensionFieldInfo<boolean>}
+ * @type {!jspb.ExtensionFieldInfo.<boolean>}
  */
 proto.wireIn = new jspb.ExtensionFieldInfo(
     50002,
@@ -5616,7 +5616,7 @@ google_protobuf_descriptor_pb.EnumValueOptions.extensions[50002] = proto.wireIn;
 /**
  * A tuple of {field number, class constructor} for the extension
  * field named `wireOut`.
- * @type {!jspb.ExtensionFieldInfo<boolean>}
+ * @type {!jspb.ExtensionFieldInfo.<boolean>}
  */
 proto.wireOut = new jspb.ExtensionFieldInfo(
     50003,
@@ -5641,7 +5641,7 @@ google_protobuf_descriptor_pb.EnumValueOptions.extensions[50003] = proto.wireOut
 /**
  * A tuple of {field number, class constructor} for the extension
  * field named `wireDebugIn`.
- * @type {!jspb.ExtensionFieldInfo<boolean>}
+ * @type {!jspb.ExtensionFieldInfo.<boolean>}
  */
 proto.wireDebugIn = new jspb.ExtensionFieldInfo(
     50004,
@@ -5666,7 +5666,7 @@ google_protobuf_descriptor_pb.EnumValueOptions.extensions[50004] = proto.wireDeb
 /**
  * A tuple of {field number, class constructor} for the extension
  * field named `wireDebugOut`.
- * @type {!jspb.ExtensionFieldInfo<boolean>}
+ * @type {!jspb.ExtensionFieldInfo.<boolean>}
  */
 proto.wireDebugOut = new jspb.ExtensionFieldInfo(
     50005,
