@@ -103,13 +103,13 @@ export default abstract class Device {
     const slice = dataView ?
       dataView.slice(3, 5) :
       Array.from(new Int8Array(buff.buffer.slice(3, 5)))
-    const typeID = leByteArrayToLong(slice)
-    const MessageType = messageTypeRegistry[typeID] as any
+    const messageId = leByteArrayToLong(slice)
+    const MessageType = messageTypeRegistry[messageId] as any
     const msg = new MessageType()
     const nextSlice = dataView ?
       dataView.slice(9) :
       Array.from(new Int8Array(buff.buffer.slice(9)))
     const reader = new jspb.BinaryReader(nextSlice, 0, buff.limit - (9 + 2))
-    return [typeID, MessageType.deserializeBinaryFromReader(msg, reader)]
+    return [messageId, MessageType.deserializeBinaryFromReader(msg, reader)]
   }
 }

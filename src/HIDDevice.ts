@@ -4,6 +4,7 @@ import ByteBuffer from 'bytebuffer'
 import * as jspb from 'google-protobuf'
 import Device from './Device'
 import { fromEvent } from 'rxjs'
+import crypto from 'crypto'
 
 export interface HIDDeviceConfig {
   hidDevice: HID,
@@ -65,14 +66,18 @@ export default class HIDDevice extends Device {
     return this.hidDevice.close()
   }
 
-  public getEntropy (length: number): Uint8Array {
+  public getEntropy (length: number = 64): Uint8Array {
     console.log('invoked getEntropy')
-    return new Uint8Array(length)
+    const buf = new Uint8Array(length)
+    return crypto.randomFillSync(buf)
   }
 
   public async sendRaw (buffer: ByteBuffer): Promise<ByteBuffer> {
     await this.write(buffer)
     // need to check for completed message instead of sleeping
+    // check for something in the bufferQueue and have a timeout for if nothing appears for X millis
+    // get msgLength from firstElement of bufferQueue and continue checking the bufferQueue
+    // until msgLength <= bufferQueue.length * 64
     const sleep = () => new Promise(resolve => setTimeout(resolve, 2000))
     await sleep()
     return this.read()
@@ -82,7 +87,7 @@ export default class HIDDevice extends Device {
     let first = this.bufferQueue[0]
     if (!first) throw new Error('Queue is empty')
     // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
-    // "?" = USB marker, "##" = KeepKey magic bytes
+    // "?" = USB reportId, "##" = KeepKey magic bytes
     // Message ID is bytes 4-5. Message length starts at byte 6.
     const valid = (first.getUint32(0) & 0xffffff00) === 0x3f232300
     const msgLength = first.getUint32(5)
@@ -99,7 +104,7 @@ export default class HIDDevice extends Device {
       // this is where things are going to shit
       while (currentBufferIndex < this.bufferQueue.length) {
         const next = this.bufferQueue[currentBufferIndex]
-        // Drop USB "?" packet identifier in the first byte
+        // Drop "?" USB reportId in the first byte
         for (let k = 1; (k < next.byteLength && offset < buffer.length); k++) {
           buffer[offset] = next.getUint8(k)
           offset++
@@ -120,7 +125,7 @@ export default class HIDDevice extends Device {
       let segment = buffer.toArrayBuffer().slice(i, i + SEGMENT_SIZE)
       let padding = new Array(SEGMENT_SIZE - segment.byteLength + 1).join('\0')
       let fragments: Array<any> = []
-      fragments.push([63])
+      fragments.push([SEGMENT_SIZE])
       fragments.push(segment)
       fragments.push(padding)
       const fragmentBuffer = ByteBuffer.concat(fragments)
