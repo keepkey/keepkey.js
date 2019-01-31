@@ -10,6 +10,7 @@ import {
   bip32ToAddressNList
 } from './utils'
 import WebUSBDevice, { WebUSBDeviceConfig } from './webUSBDevice'
+import HIDDevice, { HIDDeviceConfig } from './HIDDevice'
 import { Event } from './event'
 import messageTypeRegistry from './messageTypeRegistry'
 
@@ -41,6 +42,10 @@ export default class KeepKey {
 
   public static withWebUSB (webUSBDeviceConfig: WebUSBDeviceConfig): KeepKey {
     return new KeepKey({ autoButton: false, device: new WebUSBDevice(webUSBDeviceConfig) })
+  }
+
+  public static withHID (hidDeviceConfig: HIDDeviceConfig): KeepKey {
+    return new KeepKey({ autoButton: false, device: new HIDDevice(hidDeviceConfig) })
   }
 
   public async acknowledgeWithCharacter (character: string): Promise<[number, any]> {

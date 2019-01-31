@@ -3,7 +3,7 @@ export { default as KeepKey } from './keepkey'
 
 // Export our device interfaces
 export { default as WebUSBDevice } from './webUSBDevice'
-// export { default as hidDevice } from './hidDevice // When it exists
+export { default as HIDDevice } from './HIDDevice'
 
 // Export all proto message classes
 export { default as Messages } from './kkProto/messages_pb'

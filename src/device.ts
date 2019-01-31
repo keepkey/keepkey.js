@@ -99,10 +99,17 @@ export default abstract class Device {
 
   protected fromMessageBuffer (buff: ByteBuffer): [number, jspb.Message] {
     const dataView: any = buff.view
-    const typeID = leByteArrayToLong(dataView.slice(3, 5))
-    const MessageType = messageTypeRegistry[typeID] as any
+    // this slice shit is dumb; do this differently
+    const slice = dataView ?
+      dataView.slice(3, 5) :
+      Array.from(new Int8Array(buff.buffer.slice(3, 5)))
+    const messageId = leByteArrayToLong(slice)
+    const MessageType = messageTypeRegistry[messageId] as any
     const msg = new MessageType()
-    const reader = new jspb.BinaryReader(dataView.slice(9), 0, buff.limit - (9 + 2))
-    return [typeID, MessageType.deserializeBinaryFromReader(msg, reader)]
+    const nextSlice = dataView ?
+      dataView.slice(9) :
+      Array.from(new Int8Array(buff.buffer.slice(9)))
+    const reader = new jspb.BinaryReader(nextSlice, 0, buff.limit - (9 + 2))
+    return [messageId, MessageType.deserializeBinaryFromReader(msg, reader)]
   }
 }

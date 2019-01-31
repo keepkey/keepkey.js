@@ -1,6 +1,7 @@
 import KeepKey from './keepkey'
 import eventemitter2 from 'eventemitter2'
 import { WebUSBDeviceConfig } from './webUSBDevice'
+import { HIDDeviceConfig } from './HIDDevice'
 
 export type USBDeviceEventCallback = (deviceID: string) => void
 const defaultUSBDeviceCallback = () => {} // tslint:disable-line:no-empty
@@ -22,7 +23,7 @@ export default class KeepKeyManager {
     this.onDisconnectCallback = config.onDisconnectCallback || defaultUSBDeviceCallback
 
     // If we have access to WebUSB, register callbacks
-    if (window.navigator.usb) {
+    if (typeof window !== 'undefined' && window.navigator.usb) {
       window.navigator.usb.onconnect = this.handleConnectKeepKey.bind(this)
       window.navigator.usb.ondisconnect = this.handleDisconnectKeepKey.bind(this)
     }
@@ -58,6 +59,21 @@ export default class KeepKeyManager {
       return true
     }
     return false
+  }
+
+  public async initializeHIDDevices (
+    hidConfig?: HIDDeviceConfig,
+    devices?: USBDevice[]
+  ): Promise<number> {
+    let devicesToInitialize = devices
+    if (!devicesToInitialize) devicesToInitialize = []
+    for (let i = 0; i < devicesToInitialize.length; i++) {
+      const hidDevice = devicesToInitialize[i]
+      let k = KeepKey.withHID({ hidDevice, ...hidConfig })
+      const features = await k.initialize()
+      if (features) this.add(k, features.deviceId)
+    }
+    return this.initializedCount
   }
 
   public async exec (method: string, ...args): Promise<{ [deviceID: string]: any }> {
