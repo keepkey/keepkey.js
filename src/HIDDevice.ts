@@ -94,36 +94,37 @@ export default class HIDDevice extends Device {
   protected async read (): Promise<ByteBuffer> {
     let first = this.bufferQueue[0]
     if (!first) throw new Error('Queue is empty')
+
     // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
     // "?" = USB reportId, "##" = KeepKey magic bytes
     // Message ID is bytes 4-5. Message length starts at byte 6.
     const valid = (first.getUint32(0) & 0xffffff00) === 0x3f232300
     const msgLength = first.getUint32(5)
-    if (valid && msgLength >= 0 && msgLength < 131072) { // 128KB max message size
-      // FIXME: why doesn't ByteBuffer.concat() work?
-      const buffer = new Uint8Array(9 + 2 + msgLength)
-      for (let k = 0; k < first.byteLength; k++) {
-        buffer[k] = first.getUint8(k)
-      }
-      let offset = first.byteLength
-      let currentBufferIndex = 1
-
-      while (currentBufferIndex < this.bufferQueue.length) {
-        const next = this.bufferQueue[currentBufferIndex]
-        // Drop "?" USB reportId in the first byte
-        for (let k = 1; (k < next.byteLength && offset < buffer.length); k++) {
-          buffer[offset] = next.getUint8(k)
-          offset++
-        }
-        currentBufferIndex++
-      }
-
-      this.bufferQueue = []
-      return ByteBuffer.wrap(buffer)
-    } else {
+    if (!(valid && msgLength >= 0 && msgLength < 131072)) { // 128KB max message size
       console.error('Invalid message', { msgLength, valid, first })
       return new ByteBuffer(0)
     }
+
+    // FIXME: why doesn't ByteBuffer.concat() work?
+    const buffer = new Uint8Array(9 + 2 + msgLength)
+    for (let k = 0; k < first.byteLength; k++) {
+      buffer[k] = first.getUint8(k)
+    }
+
+    let offset = first.byteLength
+    let currentBufferIndex = 1
+    while (currentBufferIndex < this.bufferQueue.length) {
+      const next = this.bufferQueue[currentBufferIndex]
+      // Drop "?" USB reportId in the first byte
+      for (let k = 1; (k < next.byteLength && offset < buffer.length); k++) {
+        buffer[offset] = next.getUint8(k)
+        offset++
+      }
+      currentBufferIndex++
+    }
+
+    this.bufferQueue = []
+    return ByteBuffer.wrap(buffer)
   }
 
   protected async write (buffer: ByteBuffer): Promise<void> {
