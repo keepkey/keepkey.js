@@ -49,7 +49,7 @@ export default class HIDDevice extends Device {
     const msgExists = this.bufferQueue.length > 0
     if (!msgExists) return false
     const msgLength = this.bufferQueue[0].getUint32(5)
-    if ((msgLength + 2 + 2 + 4) <= this.bufferQueue.length * SEGMENT_SIZE) return true
+    if (((msgLength + 2 + 2 + 4) / SEGMENT_SIZE) <= this.bufferQueue.length) return true
     // add header value lengths for check: 2 ## | 2 msgLength | 4 msgId
     return false
   }
