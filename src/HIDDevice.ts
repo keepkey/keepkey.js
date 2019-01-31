@@ -46,6 +46,15 @@ export default class HIDDevice extends Device {
     this.bufferQueue.push(dv)
   }
 
+  private isReadyToRead = () => {
+    const msgExists = this.bufferQueue.length > 0
+    console.log({ bbq: this.bufferQueue })
+    if (!msgExists) return false
+    const msgLength = this.bufferQueue[0].getUint32(5)
+    if (msgLength <= this.bufferQueue.length * 64) return true
+    return false
+  }
+
   public get isInitialized (): boolean {
     // implement
     console.log('invoked isInitialized')
@@ -74,12 +83,16 @@ export default class HIDDevice extends Device {
 
   public async sendRaw (buffer: ByteBuffer): Promise<ByteBuffer> {
     await this.write(buffer)
-    // need to check for completed message instead of sleeping
-    // check for something in the bufferQueue and have a timeout for if nothing appears for X millis
-    // get msgLength from firstElement of bufferQueue and continue checking the bufferQueue
-    // until msgLength <= bufferQueue.length * 64
-    const sleep = () => new Promise(resolve => setTimeout(resolve, 2000))
-    await sleep()
+
+    let readInterval
+    const readComplete = () => new Promise(resolve => {
+      readInterval = setInterval(() => {
+        if (this.isReadyToRead()) resolve()
+      }, 200)
+    })
+    await readComplete()
+
+    if (readInterval) clearInterval(readInterval)
     return this.read()
   }
 
