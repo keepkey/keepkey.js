@@ -79,12 +79,14 @@ export default class KeepKeyManager {
   public async remove (deviceID: string): Promise<void> {
     if (!this.keepkeys[deviceID]) return
     const keepkey = this.get(deviceID)
+    await keepkey.clearSession()
     await keepkey.device.disconnect()
     delete this.keepkeys[deviceID]
   }
 
   public async removeAll (): Promise<void> {
     Object.values(this.keepkeys).forEach(async (keepkey) => {
+      await keepkey.clearSession()
       await keepkey.device.disconnect()
     })
     this.keepkeys = {}
