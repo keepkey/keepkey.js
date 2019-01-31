@@ -22,7 +22,6 @@ export default class HIDDevice extends Device {
   protected interface: Interface = 'StandardHID'
 
   public static async requestPair (): Promise<USBDevice> {
-    console.log('invoked request pair')
     // find all hid devices and return devices that match vendorId
     // this needs a dependency like node-hid to actually return a device
     // consider making this dependency agnostic
@@ -48,35 +47,32 @@ export default class HIDDevice extends Device {
 
   private isReadyToRead = () => {
     const msgExists = this.bufferQueue.length > 0
-    console.log({ bbq: this.bufferQueue })
     if (!msgExists) return false
     const msgLength = this.bufferQueue[0].getUint32(5)
     if (msgLength <= this.bufferQueue.length * 64) return true
+    // only return true is there are enough 64 bit chunks in the buffer queue
+    // this may be off by a little as the segment size is actually 63 - ask Jon
     return false
   }
 
   public get isInitialized (): boolean {
     // implement
-    console.log('invoked isInitialized')
     return true
   }
 
   public async initialize (): Promise<void> {
     // implement
     // right now we only pass in open devices
-    console.log('invoked initialize')
     if (!this.isInitialized) {
       // create HID from path
     }
   }
 
   public async disconnect (): Promise<void> {
-    console.log('invoked disconnect')
     return this.hidDevice.close()
   }
 
   public getEntropy (length: number = 64): Uint8Array {
-    console.log('invoked getEntropy')
     const buf = new Uint8Array(length)
     return crypto.randomFillSync(buf)
   }
@@ -111,10 +107,8 @@ export default class HIDDevice extends Device {
         buffer[k] = first.getUint8(k)
       }
       let offset = first.byteLength
-
       let currentBufferIndex = 1
 
-      // this is where things are going to shit
       while (currentBufferIndex < this.bufferQueue.length) {
         const next = this.bufferQueue[currentBufferIndex]
         // Drop "?" USB reportId in the first byte
