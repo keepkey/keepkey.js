@@ -1,109 +1,3 @@
-window.watchtowerPayload = {
-  'success': true,
-  'data': {
-    'inputs': [
-      {
-        'txid': '1e9280fd6feedd19eacb771ef8a1cf91e00e169c270251e897c31e0bb02c72dd',
-        'vout': 0,
-        'address': '14UeQ9fKbhnbF7TS9hHq6kNuSWhXZ7pZ6G',
-        'amount': 708140,
-        'confirmations': 2345,
-        'tx': {
-          'txid': '1e9280fd6feedd19eacb771ef8a1cf91e00e169c270251e897c31e0bb02c72dd',
-          'version': 2,
-          'locktime': 545133,
-          'vin': [
-            {
-              'txid': 'ed9bc9a10f83ede934130bcc59c18bb23f52717101351aa30ed8470af928f863',
-              'vout': 1,
-              'sequence': 4294967293,
-              'n': 0,
-              'scriptSig': {
-                'hex': '160014621a0561c6ee66e30ca3619f4d396e57a634fe3a',
-                'asm': '0014621a0561c6ee66e30ca3619f4d396e57a634fe3a'
-              },
-              'addr': '33HtYRiMWs8kczfYaYiSvB864fW377G88X',
-              'valueSat': 1360532,
-              'value': 0.01360532,
-              'doubleSpentTxID': null
-            },
-            {
-              'txid': '4d52235ed86fb674acf86effbb07e0cdcb2f421c661a0ffb08208d2b61a728ae',
-              'vout': 0,
-              'sequence': 4294967293,
-              'n': 1,
-              'scriptSig': {
-                'hex': '160014bb458753e889bb6925537a6c3f38e2b48fb14646',
-                'asm': '0014bb458753e889bb6925537a6c3f38e2b48fb14646'
-              },
-              'addr': '3K6UybJHCfCdsahAwfwBsdKTAmnnE1sLFE',
-              'valueSat': 1193209,
-              'value': 0.01193209,
-              'doubleSpentTxID': null
-            }
-          ],
-          'vout': [
-            {
-              'value': '0.00708140',
-              'n': 0,
-              'scriptPubKey': {
-                'hex': '76a9142622d3d9888f5d8ae053a64b1765a9e144baff0288ac',
-                'asm': 'OP_DUP OP_HASH160 2622d3d9888f5d8ae053a64b1765a9e144baff02 OP_EQUALVERIFY OP_CHECKSIG',
-                'addresses': [
-                  '14UeQ9fKbhnbF7TS9hHq6kNuSWhXZ7pZ6G'
-                ],
-                'type': 'pubkeyhash'
-              },
-              'spentTxId': null,
-              'spentIndex': null,
-              'spentHeight': null
-            },
-            {
-              'value': '0.01840421',
-              'n': 1,
-              'scriptPubKey': {
-                'hex': 'a9148784016eabe787fb2badb719cfcace0312ae69c687',
-                'asm': 'OP_HASH160 8784016eabe787fb2badb719cfcace0312ae69c6 OP_EQUAL',
-                'addresses': [
-                  '3E3ZHMGyWd8CTK6xkqCVH594gP449gFF2V'
-                ],
-                'type': 'scripthash'
-              },
-              'spentTxId': '121968c8eb252a380eefb626a25e319321757ee953a80e93294535cc799a3893',
-              'spentIndex': 0,
-              'spentHeight': 545140
-            }
-          ],
-          'blockhash': '0000000000000000001ea5b0e590eed57bba8282170b611117b1a10990c0b48c',
-          'blockheight': 545134,
-          'confirmations': 2345,
-          'time': 1539159137,
-          'blocktime': 1539159137,
-          'valueOut': 0.02548561,
-          'size': 204,
-          'valueIn': 0.02553741,
-          'fees': 0.0000518
-        }
-      }
-    ],
-    'outputs': [
-      {
-        'address': '14UeQ9fKbhnbF7TS9hHq6kNuSWhXZ7pZ6G',
-        'amount': 20000,
-        'is_change': false
-      },
-      {
-        'address': '1HDF6nL3PS7QeQ3FoSLryV7US1v94vdSnp',
-        'amount': 685719,
-        'is_change': true,
-        'index': 0,
-        'relpath': '1/0'
-      }
-    ],
-    'fee': 2421
-  }
-}
-
 window.localStorage.debug = '*'
 const loggers = {}
 
@@ -118,32 +12,142 @@ const manager = window.keepkeyManager = new window.keepkey.KeepKeyManager({
   }
 })
 
-window.connectWebUSB = function () {
+window.handlePinDigit = function (digit) {
+  let input = document.getElementById('#pinInput')
+  if (digit === "") {
+    input.value = input.value.slice(0, -1);
+  } else {
+    input.value += digit.toString();
+  }
+}
+
+window.pinOpen = function () {
+  document.getElementById('#pinModal').className = 'modale opened'
+}
+
+window.pinEntered = function () {
+  let input = document.getElementById('#pinInput')
+  window.keepkey.acknowledgeWithPin(input.value);
+  document.getElementById('#pinModal').className='modale';
+}
+
+window.passphraseOpen = function () {
+  document.getElementById('#passphraseModal').className = 'modale opened'
+}
+
+window.passphraseEntered = function () {
+  let input = document.getElementById('#passphraseInput')
+  window.keepkey.acknowledgeWithPassphrase(input.value);
+  document.getElementById('#passphraseModal').className='modale';
+}
+
+window.showXpub = function (path, coin) {
+  if (!window.keepkey.getPublicKey) {
+    console.error("Need to pair your KeepKey first!");
+    return;
+  }
+
+  window.keepkey.getPublicKey({
+    addressNList: path,
+    showDisplay: true,
+    coinName: coin
+  })
+}
+
+window.tellXpub = async function (path, coin) {
+  return await window.keepkey.getPublicKey({
+    addressNList: path,
+    showDisplay: false,
+    coinName: coin
+  })
+  .then((pk) => pk[1])
+}
+
+window.accountIdx = 0;
+
+window.prevAccount = function (selector) {
+  window.accountIdx = window.accountIdx > 0 ? window.accountIdx - 1 : 0;
+  window.buildXpubTable(selector)
+}
+
+window.nextAccount = function (selector) {
+  window.accountIdx++;
+  window.buildXpubTable(selector)
+}
+
+window.buildXpubTable = async function (selector) {
+  if (!window.keepkey.getPublicKey) {
+    console.error("Need to pair your KeepKey first!");
+    return;
+  }
+
+  let tbl = document.getElementById(selector)
+  tbl.innerHTML = '';
+
+  let tr;
+  let th;
+
+  // Header
+  tbl.insertAdjacentHTML('beforeend', "<tr><th>Icon</th><th>Account Name</th><th>BIP32 Path</th><th>XPUB</th><th>Show</th></tr>")
+
+
+  let makeButton = function (ticker, coin, slip44, account) {
+    return "<button class='button button-outline' onclick='showXpub([0x80000000+44, 0x80000000+" + slip44 + ", 0x80000000+" + account + "], \"" + coin + "\")'>View</button>"
+  }
+
+  let makeRow = async function (ticker, coin, slip44, account) {
+    return (
+      "<tr>" +
+        "<td><img src=\"https://static.coincap.io/assets/icons/svg/" + ticker + ".svg\"/></td>" +
+        "<td style=\"white-space:nowrap;\">" + coin + " Account #" + account + "</td>" +
+        "<td>m/44'/" + slip44 + "'/" + account + "'</td>" +
+        "<td style=\"word-break:break-all;\">" + (await window.tellXpub([0x80000000+44, 0x80000000+slip44,0x80000000+account], coin)) + "</td>" +
+        "<td>" + makeButton(ticker, coin, slip44, account) + "</td>" +
+      "</tr>"
+    );
+  }
+
+  // Rows
+  tbl.insertAdjacentHTML('beforeend', await makeRow('btc', 'Bitcoin', 0, window.accountIdx))
+  tbl.insertAdjacentHTML('beforeend', await makeRow('bch', 'BitcoinCash', 0x91, window.accountIdx))
+  tbl.insertAdjacentHTML('beforeend', await makeRow('btg', 'BitcoinGold', 0x9c, window.accountIdx))
+  tbl.insertAdjacentHTML('beforeend', await makeRow('ltc', 'Litecoin', 2, window.accountIdx))
+  tbl.insertAdjacentHTML('beforeend', await makeRow('dash', 'Dash', 5, window.accountIdx))
+  tbl.insertAdjacentHTML('beforeend', await makeRow('doge', 'Dogecoin', 3, window.accountIdx))
+}
+
+window.pairUnlockAndBuildTable = async function (selector) {
+  await window.keepkey.WebUSBDevice.requestPair();
+
   manager.initializeWebUSBDevices()
     .then(() => {
-      console.log(`Found ${Object.keys(manager.keepkeys).length} KeepKey(s)`)
       if (manager.initializedCount) {
         const k = manager.get()
-        console.log('Putting first keepkey on window as window.keepkey: ', k)
         window.keepkey = k
       }
-      return manager.exec('getFeatures')
-    })
-    .then(featuresByDeviceID => {
-      console.log('Features by device ID:')
-      console.log(featuresByDeviceID)
-    })
-    .then(() => {
-      Object.keys(manager.keepkeys).forEach((deviceID) => {
-        loggers[deviceID] = window.debug(deviceID)
-      })
-      manager.deviceEvents.offAny()
-      manager.deviceEvents.onAny((_, [deviceID, msg]) => {
-        loggers[deviceID](msg)
-      })
     })
     .catch(e => {
-      console.error('ConnectWebUSB Error')
+      console.error('Error connecting over WebUSB')
       console.error(String(e))
     })
+    .then(() => {
+      const MESSAGETYPE_PINMATRIXREQUEST = 18; // FIXME: how do I retrieve this the 'right' way?
+      const MESSAGETYPE_PASSPHRASEREQUEST = 41; // FIXME
+      window.keepkey.device.events.on(String(MESSAGETYPE_PINMATRIXREQUEST), (event) => {
+        window.pinOpen();
+      });
+      window.keepkey.device.events.on(String(MESSAGETYPE_PASSPHRASEREQUEST), (event) => {
+        window.passphraseOpen();
+      });
+    })
+    .then(() => {
+      // Ask the device to prompt for PIN/Passphrase, if needed.
+      return manager.exec('ping', {
+        message: "unlock",
+        buttonProtection: false,
+        pinProtection: true,
+        passphraseProtection: true
+      });
+    })
+    .then(() => window.buildXpubTable(selector))
 }

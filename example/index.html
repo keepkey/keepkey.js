@@ -4,34 +4,152 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>KeepKey WebUSB Example</title>
+  <title>KeepKey XPub Exporter</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css" />
+  <style>
+    .modale:before {
+      content: "";
+      display: none;
+      background: rgba(0, 0, 0, 0.6);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+    }
+    .opened:before {
+      display: block;
+    }
+    .opened .modal-dialog {
+      -webkit-transform: translate(0, 0);
+      -ms-transform: translate(0, 0);
+      transform: translate(0, 0);
+      top: 20%;
+    }
+    .modal-dialog {
+      background: #fefefe;
+      border: #333333 solid 0px;
+      border-radius: 5px;
+      margin-left: -200px;
+      text-align:center;
+      position: fixed;
+      left: 50%;
+      top: -100%;
+      z-index: 11;
+      width: 360px;
+      box-shadow:0 5px 10px rgba(0,0,0,0.3);
+      -webkit-transform: translate(0, -500%);
+      -ms-transform: translate(0, -500%);
+      transform: translate(0, -500%);
+      -webkit-transition: -webkit-transform 0.3s ease-out;
+      -moz-transition: -moz-transform 0.3s ease-out;
+      -o-transition: -o-transform 0.3s ease-out;
+      transition: transform 0.3s ease-out;
+    }
+    .modal-body {
+      padding: 20px;
+    }
+    .modal-body input{
+      width:200px;
+      padding:8px;
+      border:1px solid #ddd;
+      color:#888;
+      outline:0;
+      font-size:14px;
+      font-weight:bold
+    }
+    .modal-header,
+    .modal-footer {
+      padding: 10px 20px;
+    }
+    .modal-header {
+      border-bottom: #eeeeee solid 1px;
+    }
+    .modal-header h2 {
+      font-size: 20px;
+    }
+  </style>
+
 </head>
 
 <body>
   <div class="container" style="padding-top:8em;">
-    <h2>Hello world! This is the keepkey.js demo.</h2>
-    <h5><a href="https://keepkey.github.io/keepkey.js/index.html" target="_blank">View the docs</a></h5>
+    <h2>KeepKey XPub Exporter</h2>
 
-    <section>
-      <pre class="code">
-
-        window.keepkeyManager = new window.keepkey.KeepKeyManager()
-      </pre>
-    </section>
-
-    <p>Now open the console to start hacking! <code>(Cmd + Shift + C)</code></p>
     <div class="container">
-      <h3>WebUSB</h3>
-      <p>To seed the <code>window.keepkeyManager</code> with WebUSB devices, first pair a device, then click start.</p>
-      <button class="button button-outline" onclick="window.keepkey.WebUSBDevice.requestPair()">Pair WebUSB Device</button>
-      <button onclick="connectWebUSB()">START WEBUSB</button>
+      <p>
+        Make sure you've got v6.0.0 or newer firmware on your KeepKey, we need
+        that to be able to talk to your device over WebUSB.
+        You can get the new firmware by updating your device using the
+        <a href="https://keepkey.zendesk.com/hc/en-us/articles/360000552199-How-to-Install-the-KeepKey-Beta-rc-Client">KeepKey Client (beta)</a>
+      </p>
+
+      <p>
+        To get started, you'll need to pair your device:
+      </p>
+
+      <button class="button button-outline" onclick="pairUnlockAndBuildTable('#xpubTable')">View XPubs</button>
+      <br>
+
+      <table id="#xpubTable" border="0" />
+      <br>
+
+      <p>
+        Happy HODLing!
+      </p>
+
+      <button onclick="prevAccount('#xpubTable')" class="button button-outline">&lt;</button>
+      <button onclick="nextAccount('#xpubTable')" class="button button-outline">&gt;</button>
+
     </div>
-  
+
   </div>
+
+  <div id="#pinModal" class="modale" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Enter PIN</h3>
+        <p>Use the PIN layout shown on your KeepKey to find the location to press on this PIN pad.</p>
+      </div>
+      <div class="modal-body">
+        <button onclick="handlePinDigit(7)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(8)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(9)" class="button button-outline">&#x25CF;</button><br>
+        <button onclick="handlePinDigit(4)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(5)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(6)" class="button button-outline">&#x25CF;</button><br>
+        <button onclick="handlePinDigit(1)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(2)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(3)" class="button button-outline">&#x25CF;</button><br>
+        <input id="#pinInput" type="text" style="-webkit-text-security: disc;"/>
+        <button onclick="handlePinDigit('')" class="button button-outline">x</button>
+      </div>
+      <div class="modal-footer">
+        <button class="button button-outline" onclick="pinEntered()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="#passphraseModal" class="modale" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Enter Passphrase</h3>
+        <p>Enter your BIP39 Passphrase.</p>
+      </div>
+      <div class="modal-body">
+        <input id="#passphraseInput" type="password"/>
+      </div>
+      <div class="modal-footer">
+        <button class="button button-outline" onclick="passphraseEntered()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+
   <script src="https://unpkg.com/debug@4.0.1/dist/debug.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
   <script src="js/vendor/keepkey.browser.js"></script>
