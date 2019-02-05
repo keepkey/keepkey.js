@@ -466,7 +466,7 @@ export default class KeepKey {
     const unsignedTx = new Types.TransactionType()
     unsignedTx.setVersion(2)
     unsignedTx.setInputsCnt(inputs.length)
-    unsignedTx.setOutputsCnt(outputs.length + exchangeOutputs.length)
+    unsignedTx.setOutputsCnt(outputs.length)
     unsignedTx.setLockTime(0) // TODO: remove?
 
     inputs.forEach((input, i) => {
@@ -484,18 +484,8 @@ export default class KeepKey {
       const newOutput = new Types.TxOutputType()
       newOutput.setAmount(output.amount)
       newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS)  // TODO: Support all script types. NOTE: Older firmware may require PAYTOSCRIPTHASH.
-      if (output.isChange) {
-        newOutput.setAddressNList(output.address_n)
-        newOutput.setAddressType(Types.OutputAddressType.CHANGE)
-      } else {
-        newOutput.setAddress(output.address)
-        newOutput.setAddressType(Types.OutputAddressType.SPEND)
-      }
-      unsignedTx.addOutputs(newOutput, k)
-    })
-
-    if (exchangeOutputs != null) {
-      exchangeOutputs.forEach((exchangeOutput, l) => {
+      if (exchangeOutputs && exchangeOutputs[k]) {
+        const exchangeOutput = exchangeOutputs[k]
         // convert the base64 encoded signedExchangeResponse message into the correct object
         const signedExchange = Exchanges.SignedExchangeResponse.deserializeBinary(exchangeOutput.signed_exchange_response)
         // decode the deposit amount from a little-endian Uint8Array into an unsigned uint64
@@ -510,16 +500,21 @@ export default class KeepKey {
         outExchangeType.setWithdrawalCoinName(exchangeOutput.withdrawal_coin_name)
         outExchangeType.setWithdrawalAddressNList(exchangeOutput.withdrawal_address_n)
         outExchangeType.setReturnAddressNList(exchangeOutput.return_address_n)
-        const out = new Types.TxOutputType()
-        out.setAmount(val)
-        out.setAddress(signedExchange.toObject().responsev2.depositAddress.address)
-        out.setScriptType(Types.OutputScriptType.PAYTOADDRESS)
-        out.setAddressType(3)
-        out.setExchangeType(outExchangeType)
-        unsignedTx.addOutputs(out, l)
-      })
-    }
-    unsignedTx.setOutputsCnt(exchangeOutputs.length + outputs.length)
+        newOutput.setAmount(val)
+        newOutput.setAddress(signedExchange.toObject().responsev2.depositAddress.address)
+        newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS)
+        newOutput.setAddressType(3)
+        newOutput.setExchangeType(outExchangeType)
+      } else if (output.isChange) {
+        newOutput.setAddressNList(output.address_n)
+        newOutput.setAddressType(Types.OutputAddressType.CHANGE)
+      } else {
+        newOutput.setAddress(output.address)
+        newOutput.setAddressType(Types.OutputAddressType.SPEND)
+      }
+      unsignedTx.addOutputs(newOutput, k)
+    })
+
     txmap['unsigned'] = unsignedTx
 
     inputs.forEach(inputTx => {
@@ -612,7 +607,7 @@ export default class KeepKey {
     // Prepare and send initial message
     const tx = new Messages.SignTx()
     tx.setInputsCount(inputs.length)
-    tx.setOutputsCount(outputs.length + exchangeOutputs.length)
+    tx.setOutputsCount(outputs.length)
     tx.setCoinName(coinName)
     if (version != null) tx.setVersion(version)
     if (lockTime != null) tx.setLockTime(lockTime)
