@@ -78,18 +78,20 @@ export default class KeepKeyManager {
 
   public async remove (deviceID: string): Promise<void> {
     if (!this.keepkeys[deviceID]) return
-    const keepkey = this.get(deviceID)
-    await keepkey.clearSession()
-    await keepkey.device.disconnect()
+
+    try {
+      const keepkey = this.get(deviceID)
+      await keepkey.clearSession()
+      await keepkey.device.disconnect()
+    } catch (e) {
+      console.error(e)
+    }
+
     delete this.keepkeys[deviceID]
   }
 
   public async removeAll (): Promise<void> {
-    Object.values(this.keepkeys).forEach(async (keepkey) => {
-      await keepkey.clearSession()
-      await keepkey.device.disconnect()
-    })
-    this.keepkeys = {}
+    await Promise.all(Object.keys(this.keepkeys).map(this.remove))
   }
 
   public decorateEvents (deviceID: string, events: eventemitter2.EventEmitter2): void {
