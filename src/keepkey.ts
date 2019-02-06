@@ -223,7 +223,7 @@ export default class KeepKey {
       est.setGasPrice(typeof tx.gasPrice === 'string' ? arrayify(tx.gasPrice) : tx.gasPrice)
       est.setGasLimit(typeof tx.gasLimit === 'string' ? arrayify(tx.gasLimit) : tx.gasLimit)
       est.setValue(typeof tx.value === 'string' ? arrayify(tx.value) : tx.value)
-      est.setAddressType(Types.OutputAddressType.SPEND)
+      est.setAddressType(Types.OutputAddressType.EXCHANGE)
       est.setExchangeType(exchangeType)
     } else {
       est.setAddressNList(tx.addressNList)
