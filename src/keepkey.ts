@@ -355,6 +355,7 @@ export default class KeepKey {
     getPublicKey.setEcdsaCurveName(g.ecdsaCurveName || 'secp256k1')
     getPublicKey.setShowDisplay(g.showDisplay || false)
     getPublicKey.setScriptType(g.scriptType || Types.InputScriptType.SPENDADDRESS)
+    getPublicKey.setCoinName(g.coinName || 'Bitcoin')
     // send
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETPUBLICKEY, getPublicKey)
     const publicKey = (response as Messages.PublicKey).toObject()
