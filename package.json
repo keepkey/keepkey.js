@@ -1,0 +1,44 @@
+{
+  "name": "keepkey.js",
+  "version": "2.0.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "scripts": {
+    "build": "microbundle --name=keepkey",
+    "build:browser": "microbundle --target=web --external=none --name=keepkey",
+    "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
+    "clean": "rm -rf dist .rts2_*",
+    "dev": "microbundle watch --name=keepkey",
+    "dev:browser": "microbundle watch --target=web --external=none --name=keepkey",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+    "@keepkey/device-protocol": "^6.0.2",
+    "bytebuffer": "^5.0.1",
+    "eventemitter3": "^3.1.0",
+    "google-protobuf": "^3.7.0-rc.2",
+    "rxjs": "^6.4.0"
+  },
+  "devDependencies": {
+    "@types/bytebuffer": "^5.0.40",
+    "@types/eventemitter3": "^2.0.2",
+    "@types/google-protobuf": "^3.2.7",
+    "microbundle": "^0.9.0",
+    "standard": "^12.0.1",
+    "typedoc": "^0.14.2",
+    "typescript": "^3.3.3",
+    "typescript-eslint-parser": "^22.0.0"
+  },
+  "standard": {
+    "parser": "typescript-eslint-parser",
+    "plugins": [
+      "typescript"
+    ]
+  }
+}
