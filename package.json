@@ -57,10 +57,12 @@
   },
   "jest": {
     "transform": {
-      ".(ts|tsx|js|json)": "ts-jest"
+      "^.+\\.js?$": "./tools/addDefaultTransform.js",
+      "\\.(ts|tsx)": "ts-jest"
     },
+    "transformIgnorePatterns": [],
     "testEnvironment": "node",
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx)$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
@@ -69,6 +71,9 @@
       "json",
       "node"
     ],
+    "moduleNameMapper": {
+      "proto.json": "<rootDir>/src/__mocks__/proto.js"
+    },
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/test/"
