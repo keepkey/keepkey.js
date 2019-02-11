@@ -1,6 +1,7 @@
 import jspb from 'google-protobuf'
 import eventemitter2 from 'eventemitter2'
 import Messages from './kkProto/messages_pb'
+import Types from './kkProto/types_pb'
 import { fromEvent } from 'rxjs'
 import { take } from 'rxjs/operators'
 import ByteBuffer from 'bytebuffer'
@@ -101,6 +102,12 @@ export default abstract class Device {
     const dataView: any = buff.view
     const typeID = leByteArrayToLong(dataView.slice(3, 5))
     const MessageType = messageTypeRegistry[typeID] as any
+    if (!MessageType) {
+      const msg = new Messages.Failure()
+      msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE)
+      msg.setMessage('Unknown message type received')
+      return [Messages.MessageType.MESSAGETYPE_FAILURE, msg]
+    }
     const msg = new MessageType()
     const reader = new jspb.BinaryReader(dataView.slice(9), 0, buff.limit - (9 + 2))
     return [typeID, MessageType.deserializeBinaryFromReader(msg, reader)]
