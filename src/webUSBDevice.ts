@@ -1,9 +1,10 @@
 import ByteBuffer from 'bytebuffer'
-import * as jspb from 'google-protobuf'
 import eventemitter2 from 'eventemitter2'
 import { default as PQueue } from 'p-queue'
 
 import Device from './device'
+import Messages from './kkProto/messages_pb'
+import Types from './kkProto/types_pb'
 
 export interface WebUSBDeviceConfig {
   usbDevice: USBDevice,
@@ -61,8 +62,15 @@ export default class WebUSBDevice extends Device {
   public async sendRaw (buffer: ByteBuffer): Promise<ByteBuffer> {
     // Temporarily removing queue to debug overflow error potentially caused by concurrent sends
     return this.queue.add(async () => {
-      await this.write(buffer)
-      return this.read()
+      try {
+        await this.write(buffer)
+        return await this.read()
+      } catch (e) {
+        const msg = new Messages.Failure()
+        msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE)
+        msg.setMessage(String(e))
+        return ByteBuffer.wrap(msg.serializeBinary())
+      }
     })
   }
 
@@ -107,7 +115,7 @@ export default class WebUSBDevice extends Device {
       return ByteBuffer.wrap(buffer)
     } else {
       console.error('Invalid message', { msgLength, valid, first })
-      return new ByteBuffer(0)
+      throw new Error('Invalid message')
     }
   }
 
