@@ -147,3 +147,29 @@ window.connectWebUSB = function () {
       console.error(String(e))
     })
 }
+
+window.allPings = []
+
+const log = (name, p) => {
+  console.log('sending', name)
+  return window.allPings.push(p.then(res => console.log(`${name} response:`, res))
+    .catch(e => console.error(`${name} error:`, e)))
+}
+
+let pingCount = 0
+
+window.pingWithButton = function () {
+  log(`ping ${++pingCount} with button`, manager.exec('ping', { message: 'ping' + pingCount, buttonProtection: true }))
+}
+
+window.pingWithPIN = function () {
+  log(`ping ${++pingCount} with PIN`, manager.exec('ping', { message: 'ping' + pingCount, pinProtection: true }))
+}
+
+window.ping = function () {
+  log(`ping ${++pingCount}`, manager.exec('ping', { message: 'ping' + pingCount }))
+}
+
+window.cancelPending = function () {
+  log('cancelPending', window.keepkey.device.cancelPending())
+}

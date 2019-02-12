@@ -29,8 +29,14 @@
       <p>To seed the <code>window.keepkeyManager</code> with WebUSB devices, first pair a device, then click start.</p>
       <button class="button button-outline" onclick="window.keepkey.WebUSBDevice.requestPair()">Pair WebUSB Device</button>
       <button onclick="connectWebUSB()">START WEBUSB</button>
+      <div>
+        <button onclick="ping()">Ping</button>
+        <button onclick="pingWithButton()">Ping With Button</button>
+        <button onclick="pingWithPIN()">Ping With PIN</button>
+        <button onclick="cancelPending()">Send Cancel</button>
+      </div>
     </div>
-  
+
   </div>
   <script src="https://unpkg.com/debug@4.0.1/dist/debug.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>

@@ -13,6 +13,13 @@ export interface WebUSBDeviceConfig {
 
 const SEGMENT_SIZE = 63
 
+const failureMessageFactory = (e: Error) => {
+  const msg = new Messages.Failure()
+  msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE)
+  msg.setMessage(String(e))
+  return ByteBuffer.wrap(msg.serializeBinary())
+}
+
 export default class WebUSBDevice extends Device {
   private queue: PQueue
   public usbDevice: USBDevice
@@ -43,6 +50,18 @@ export default class WebUSBDevice extends Device {
     }
   }
 
+  public async cancelPending () {
+    console.log('pending', this.queue.pending)
+    try {
+      // Pending promise will get a read, then a second read will be from the cancel command
+      const cancelMsg = new Messages.Cancel()
+      const buffer = this.toMessageBuffer(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg)
+      await this.write(buffer)
+    } catch (e) {
+      console.error(`Unexpected: ${String(e)}`)
+    }
+  }
+
   public async disconnect (): Promise<void> {
     if (!this.usbDevice.opened) return
     try {
@@ -66,10 +85,7 @@ export default class WebUSBDevice extends Device {
         await this.write(buffer)
         return await this.read()
       } catch (e) {
-        const msg = new Messages.Failure()
-        msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE)
-        msg.setMessage(String(e))
-        return ByteBuffer.wrap(msg.serializeBinary())
+        return failureMessageFactory(e)
       }
     })
   }
