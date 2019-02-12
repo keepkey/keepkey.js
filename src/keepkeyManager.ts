@@ -38,10 +38,13 @@ export default class KeepKeyManager {
   ): Promise<number> {
     if (!window.navigator.usb) throw new Error('WebUSB not supported in your browser!')
 
-    const devicesToInitialize = devices || (await window.navigator.usb.getDevices())
-      .filter((dev) => !(this.keepkeys[dev.serialNumber]))
+    const devicesToInitialize = devices || await window.navigator.usb.getDevices()
 
     for (const usbDevice of devicesToInitialize) {
+      if (this.keepkeys[usbDevice.serialNumber]) {
+        await this.get(usbDevice.serialNumber).initialize()
+        continue
+      }
       let k = KeepKey.withWebUSB({ usbDevice, ...webusbConfig })
       const features = await k.initialize()
       if (features) this.add(k, usbDevice.serialNumber)
@@ -92,6 +95,13 @@ export default class KeepKeyManager {
 
   public async removeAll (): Promise<void> {
     await Promise.all(Object.keys(this.keepkeys).map(this.remove))
+  }
+
+  public disconnectAll (): void {
+    Object.values(this.keepkeys).forEach(k => {
+      if (k.device.queue) k.device.queue.clear()
+      k.device.disconnect().catch(console.log)
+    })
   }
 
   public decorateEvents (deviceID: string, events: eventemitter2.EventEmitter2): void {

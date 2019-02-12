@@ -14,7 +14,7 @@ export interface WebUSBDeviceConfig {
 const SEGMENT_SIZE = 63
 
 export default class WebUSBDevice extends Device {
-  private queue: PQueue
+  public queue: PQueue
   public usbDevice: USBDevice
   public events: eventemitter2.EventEmitter2
 
@@ -36,18 +36,15 @@ export default class WebUSBDevice extends Device {
   }
 
   public async initialize (): Promise<void> {
-    if (!this.isInitialized) {
-      await this.usbDevice.open()
-      if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1)
-      await this.usbDevice.claimInterface(0)
-    }
+    await this.usbDevice.open()
+    if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1)
+    await this.usbDevice.claimInterface(0)
   }
 
   public async disconnect (): Promise<void> {
-    if (!this.usbDevice.opened) return
     try {
       // If the device is disconnected, this will fail and throw, which is fine.
-      await this.usbDevice.releaseInterface(0)
+      await this.usbDevice.close()
     } catch (e) {
       console.log(e)
     }
