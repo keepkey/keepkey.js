@@ -12,3 +12,4 @@ docs
 *.proto
 example/js/vendor
 dist
+.rpt2_*
