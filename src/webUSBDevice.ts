@@ -4,7 +4,6 @@ import { default as PQueue } from 'p-queue'
 
 import Device from './device'
 import Messages from './kkProto/messages_pb'
-import Types from './kkProto/types_pb'
 
 export interface WebUSBDeviceConfig {
   usbDevice: USBDevice,
@@ -12,13 +11,6 @@ export interface WebUSBDeviceConfig {
 }
 
 const SEGMENT_SIZE = 63
-
-const failureMessageFactory = (e: Error) => {
-  const msg = new Messages.Failure()
-  msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE)
-  msg.setMessage(String(e))
-  return ByteBuffer.wrap(msg.serializeBinary())
-}
 
 export default class WebUSBDevice extends Device {
   private queue: PQueue
@@ -53,12 +45,19 @@ export default class WebUSBDevice extends Device {
   public async cancelPending () {
     console.log('pending', this.queue.pending)
     try {
-      // Pending promise will get a read, then a second read will be from the cancel command
+      // If there are no pending commands, we should wait for a read back from the cancel command
+      // Otherwise the pending promise will read the error
+      if (this.queue.pending === 0) {
+        this.queue.add(() => this.read(), { priority: 1000 })
+          .then(() => console.log('cancenPending read done'))
+          .catch(e => console.log('cancenPending read failed', e))
+      }
+
       const cancelMsg = new Messages.Cancel()
       const buffer = this.toMessageBuffer(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg)
       await this.write(buffer)
     } catch (e) {
-      console.error(`Unexpected: ${String(e)}`)
+      console.error('Cancel Pending Error', e)
     }
   }
 
@@ -68,7 +67,7 @@ export default class WebUSBDevice extends Device {
       // If the device is disconnected, this will fail and throw, which is fine.
       await this.usbDevice.releaseInterface(0)
     } catch (e) {
-      console.log(e)
+      console.log('Disconnect Error (Ignored):', e)
     }
   }
 
@@ -85,13 +84,14 @@ export default class WebUSBDevice extends Device {
         await this.write(buffer)
         return await this.read()
       } catch (e) {
-        return failureMessageFactory(e)
+        return Device.failureMessageFactory(e)
       }
     })
   }
 
   protected async write (buff: ByteBuffer): Promise<void> {
     // break frame into segments
+    this.events.emit('write', buff)
     for (let i = 0; i < buff.limit; i += SEGMENT_SIZE) {
       let segment = buff.toArrayBuffer().slice(i, i + SEGMENT_SIZE)
       let padding = new Array(SEGMENT_SIZE - segment.byteLength + 1).join('\0')
@@ -105,6 +105,7 @@ export default class WebUSBDevice extends Device {
   }
 
   protected async read (): Promise<ByteBuffer> {
+    this.events.emit('reading')
     let first = await this.readChunk()
     // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
     // "?" = USB marker, "##" = KeepKey magic bytes
@@ -128,7 +129,9 @@ export default class WebUSBDevice extends Device {
         }
       }
 
-      return ByteBuffer.wrap(buffer)
+      const res = ByteBuffer.wrap(buffer)
+      this.events.emit('read', res)
+      return res
     } else {
       console.error('Invalid message', { msgLength, valid, first })
       throw new Error('Invalid message')

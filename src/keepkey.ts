@@ -138,11 +138,7 @@ export default class KeepKey {
   // Cancel aborts the last device action that required user interaction
   // It can follow a button request, passphrase request, or pin request
   public async cancel (): Promise<void> {
-    const cancel = new Messages.Cancel()
-    // send
-    await this.device.exchange(Messages.MessageType.MESSAGETYPE_CANCEL, cancel)
-
-    // Emit event to notify clients that an action has been cancelled
+    await this.device.cancelPending()
     this.device.events.emit('CANCEL_ACTION')
   }
 

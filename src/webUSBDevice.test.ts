@@ -7,7 +7,7 @@ describe('WebUSBDevice', () => {
   test('should return a Failure message if `read` throws an error', async () => {
     const config = { usbDevice: {
       transferIn: jest.fn().mockRejectedValueOnce(new Error('TEST'))
-    }, events: {} }
+    }, events: { emit: jest.fn() } }
     // @ts-ignore
     const device = new WebUSBDevice(config)
     const msg = new Messages.Cancel()
