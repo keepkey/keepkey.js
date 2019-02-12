@@ -84,6 +84,8 @@ export default abstract class Device {
 
   public abstract sendRaw (buffer: ByteBuffer): Promise<ByteBuffer>
 
+  public abstract cancelPending (): Promise<void>
+
   protected toMessageBuffer (msgTypeEnum: number, msg: jspb.Message): ByteBuffer {
     const messageBuffer = msg.serializeBinary()
 
@@ -111,5 +113,16 @@ export default abstract class Device {
     const msg = new MessageType()
     const reader = new jspb.BinaryReader(dataView.slice(9), 0, buff.limit - (9 + 2))
     return [typeID, MessageType.deserializeBinaryFromReader(msg, reader)]
+  }
+
+  protected static failureMessageFactory (e?: Error | string) {
+    const msg = new Messages.Failure()
+    msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE)
+    if (typeof e === 'string') {
+      msg.setMessage(e)
+    } else {
+      msg.setMessage(String(e))
+    }
+    return ByteBuffer.wrap(msg.serializeBinary())
   }
 }

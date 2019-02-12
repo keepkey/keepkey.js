@@ -126,6 +126,9 @@ window.connectWebUSB = function () {
         const k = manager.get()
         console.log('Putting first keepkey on window as window.keepkey: ', k)
         window.keepkey = k
+        k.device.events.on('write', data => console.log('Event: write', data))
+        k.device.events.on('read', data => console.log('Event: read', data))
+        k.device.events.on('reading', () => console.log('Event: reading'))
       }
       return manager.exec('getFeatures')
     })
@@ -146,4 +149,41 @@ window.connectWebUSB = function () {
       console.error('ConnectWebUSB Error')
       console.error(String(e))
     })
+}
+
+// So we can see which commands aren't resolving
+window.allPings = []
+
+const log = (name, p) => {
+  console.log('sending', name)
+  const details = { name, state: 'pending' }
+  details.p = p
+    .then(res => {
+      console.log(`${name} response:`, res)
+      details.state = 'resolved'
+    })
+    .catch(e => {
+      console.error(`${name} error:`, e)
+      details.state = 'rejected'
+    })
+  allPings.push(details)
+  return p
+}
+
+let pingCount = 0
+
+window.pingWithButton = function () {
+  log(`ping ${++pingCount} with button`, manager.exec('ping', { message: 'ping' + pingCount, buttonProtection: true }))
+}
+
+window.pingWithPIN = function () {
+  log(`ping ${++pingCount} with PIN`, manager.exec('ping', { message: 'ping' + pingCount, pinProtection: true }))
+}
+
+window.ping = function () {
+  log(`ping ${++pingCount}`, manager.exec('ping', { message: 'ping' + pingCount }))
+}
+
+window.cancelPending = function () {
+  log('cancelPending', window.keepkey.cancel())
 }
