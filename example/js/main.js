@@ -22,7 +22,9 @@ window.handlePinDigit = function (digit) {
 }
 
 window.pinOpen = function () {
-  document.getElementById('#pinModal').className = 'modale opened'
+  let input = document.getElementById('#pinInput')
+  input.value = '';
+  document.getElementById('#pinModal').className = 'modale opened';
 }
 
 window.pinEntered = function () {
@@ -32,11 +34,13 @@ window.pinEntered = function () {
 }
 
 window.passphraseOpen = function () {
-  document.getElementById('#passphraseModal').className = 'modale opened'
+  let input = document.getElementById('#passphraseInput');
+  input.value = '';
+  document.getElementById('#passphraseModal').className = 'modale opened';
 }
 
 window.passphraseEntered = function () {
-  let input = document.getElementById('#passphraseInput')
+  let input = document.getElementById('#passphraseInput');
   window.keepkey.acknowledgeWithPassphrase(input.value);
   document.getElementById('#passphraseModal').className='modale';
 }
@@ -50,7 +54,7 @@ window.showXpub = function (path, coin) {
   window.keepkey.getPublicKey({
     addressNList: path,
     showDisplay: true,
-    coinName: coin
+    coinName: coin !== "Dash" ? coin : null
   })
 }
 
@@ -58,7 +62,7 @@ window.tellXpub = async function (path, coin) {
   return await window.keepkey.getPublicKey({
     addressNList: path,
     showDisplay: false,
-    coinName: coin
+    coinName: coin !== "Dash" ? coin : null
   })
   .then((pk) => pk[1])
 }
@@ -89,7 +93,6 @@ window.buildXpubTable = async function (selector) {
 
   // Header
   tbl.insertAdjacentHTML('beforeend', "<tr><th>Icon</th><th>Account Name</th><th>BIP32 Path</th><th>XPUB</th><th>Show</th></tr>")
-
 
   let makeButton = function (ticker, coin, slip44, account) {
     return "<button class='button button-outline' onclick='showXpub([0x80000000+44, 0x80000000+" + slip44 + ", 0x80000000+" + account + "], \"" + coin + "\")'>View</button>"
@@ -148,6 +151,11 @@ window.pairUnlockAndBuildTable = async function (selector) {
         pinProtection: true,
         passphraseProtection: true
       });
+    })
+    .then(() => {
+      let tbl = document.getElementById("#xpubTable")
+      tbl.insertAdjacentHTML('beforebegin', "<button onclick=\"prevAccount('#xpubTable')\" class=\"button button-outline\">&lt;</button>");
+      tbl.insertAdjacentHTML('beforebegin', "<button onclick=\"nextAccount('#xpubTable')\" class=\"button button-outline\">&gt;</button>");
     })
     .then(() => window.buildXpubTable(selector))
 }
