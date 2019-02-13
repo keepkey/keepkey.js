@@ -9,6 +9,11 @@ import { leByteArrayToLong } from './utils'
 import messageTypeRegistry from './messageTypeRegistry'
 import { makeEvent } from './event'
 
+const NO_THROW_CODES = [
+  Types.FailureType.FAILURE_ACTIONCANCELLED,
+  Types.FailureType.FAILURE_PINCANCELLED
+]
+
 export default abstract class Device {
   public abstract queue?: any
   public abstract events: eventemitter2.EventEmitter2
@@ -46,10 +51,7 @@ export default abstract class Device {
     // If error, throw with response message
     if (responseTypeEnum === Messages.MessageType.MESSAGETYPE_FAILURE) {
       const errorResponse = responseMsg as Messages.Failure
-
-      if (errorResponse.getCode() !== 4) {
-        throw new Error(errorResponse.getMessage()) // We want to know what this error is
-      } else console.error(errorResponse.getMessage()) // otherwise we don't really care, it's most likely been aborted
+      if (!NO_THROW_CODES.includes(errorResponse.getCode())) throw new Error(errorResponse.getMessage()) // We don't want to throw if cancel actions are user initiated
     }
     if (responseTypeEnum === Messages.MessageType.MESSAGETYPE_BUTTONREQUEST) {
       return this.exchange(
