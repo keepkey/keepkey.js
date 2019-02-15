@@ -1,7 +1,9 @@
 export * from './keepkey'
+export * from './keepkeyManager'
 
 export * from './device'
-export * from './webUSBDevice'
+export * from './devices/webUSBDevice'
 
-export * from './messageTypeRegistry'
-export * from './messageNameRegistry'
+export * from './typeRegistry'
+
+export * from './utils'

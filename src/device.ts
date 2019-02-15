@@ -1,13 +1,46 @@
+import * as EventEmitter from 'eventemitter3'
 import { Message, BinaryReader } from 'google-protobuf'
-import { concat } from 'bytebuffer'
+import * as ByteBuffer from 'bytebuffer'
 
-import Messages from '@keepkey/device-protocol/lib/messages_pb'
-import Types from '@keepkey/device-protocol/lib/types_pb'
+import * as Messages from '@keepkey/device-protocol/lib/messages_pb'
+import * as Types from '@keepkey/device-protocol/lib/types_pb'
 
-import { messageTypeRegistry } from './messageTypeRegistry'
+import { messageTypeRegistry } from './typeRegistry'
 import { leByteSliceToLong } from './utils'
+import { WebUSBInterface } from './devices/webUSBDevice'
 
-export class Device  {
+export type Interface = WebUSBInterface
+
+export abstract class Device {
+
+  public abstract events: EventEmitter
+
+  protected abstract async write (buff: ByteBuffer): Promise<void>
+  protected abstract async read (): Promise<ByteBuffer>
+
+  public abstract get isInitialized (): boolean
+  public abstract initialize (): Promise<void>
+  public abstract disconnect (): Promise<void>
+
+  public abstract getEntropy (length: number): Uint8Array
+
+  protected abstract interface: Interface
+
+  public async listen (): Promise<void> {
+    while(true) {
+      try {
+        const thing = this.fromMessageBuffer(await this.read())
+        console.log('heard this', thing)
+      } catch(e) {
+        console.log(e)
+      }
+    }
+  }
+
+  public async exchange (msgTypeEnum: number, msg: Message): Promise<[number, Message]> {
+    return [msgTypeEnum, msg]
+  }
+
   protected toMessageBuffer (msgTypeEnum: number, msg: Message): ByteBuffer {
     const messageBuffer = msg.serializeBinary()
 
@@ -19,12 +52,11 @@ export class Device  {
     headerView.setUint16(2, msgTypeEnum)
     headerView.setUint32(4, messageBuffer.byteLength)
 
-    return concat([headerView.buffer, messageBuffer])
+    return ByteBuffer.concat([headerView.buffer, messageBuffer])
   }
 
   protected fromMessageBuffer (bb: ByteBuffer): [number, Message] {
     const typeID = leByteSliceToLong(bb.slice(3, 5))
-    console.log(typeID)
     const MessageType = messageTypeRegistry[typeID] as any
     if (!MessageType) {
       const msg = new Messages.Failure()
