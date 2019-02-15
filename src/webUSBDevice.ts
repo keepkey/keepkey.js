@@ -20,7 +20,7 @@ export default class WebUSBDevice extends Device {
   protected interface: Interface = 'StandardWebUSB'
 
   public static async requestPair (): Promise<USBDevice> {
-    return window.navigator.usb.requestDevice({ filters: [{ vendorId: 0x2b24 }] })
+    return window.navigator.usb.requestDevice({ filters: [{ vendorId: 0x2b24, productId: 0x0002 }] })
   }
 
   constructor (config: WebUSBDeviceConfig) {
