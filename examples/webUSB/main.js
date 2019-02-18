@@ -127,12 +127,12 @@ window.connectWebUSB = function () {
         console.log('Putting first keepkey on window as window.keepkey: ', k)
         window.keepkey = k
       }
-      return manager.exec('getFeatures')
+      // return manager.exec('getFeatures')
     })
-    .then(featuresByDeviceID => {
-      console.log('Features by device ID:')
-      console.log(featuresByDeviceID)
-    })
+    // .then(featuresByDeviceID => {
+    //   console.log('Features by device ID:')
+    //   console.log(featuresByDeviceID)
+    // })
     // .then(() => {
     //   Object.keys(manager.keepkeys).forEach((deviceID) => {
     //     loggers[deviceID] = window.debug(deviceID)
@@ -142,8 +142,8 @@ window.connectWebUSB = function () {
     //     loggers[deviceID](msg)
     //   })
     // })
-    .catch(e => {
-      console.error('ConnectWebUSB Error')
-      console.error(String(e))
-    })
+    // .catch(e => {
+    //   console.error('ConnectWebUSB Error')
+    //   console.error(e)
+    // })
 }

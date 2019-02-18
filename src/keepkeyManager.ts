@@ -1,6 +1,8 @@
 import { KeepKey } from './keepkey'
-import * as EventEmitter from 'eventemitter3'
+import * as eventemitter3 from 'eventemitter3'
 import { WebUSBDeviceConfig } from './devices/webUSBDevice'
+
+const { default: EventEmitter } = eventemitter3 as any
 
 export type USBDeviceEventCallback = (deviceID: string) => void
 const defaultUSBDeviceCallback = () => {} // tslint:disable-line:no-empty
@@ -11,14 +13,14 @@ export interface KeepKeyManagerConfig {
 }
 
 export class KeepKeyManager {
-  public events: EventEmitter = new EventEmitter()
+  public deviceEvents: eventemitter3 = new EventEmitter()
+
   public keepkeys: { [deviceID: string]: KeepKey } = {}
 
   protected onConnectCallback: USBDeviceEventCallback = defaultUSBDeviceCallback
   protected onDisconnectCallback: USBDeviceEventCallback = defaultUSBDeviceCallback
 
   constructor (config: KeepKeyManagerConfig = {}) {
-    console.log(EventEmitter)
     this.onConnectCallback = config.onConnectCallback || defaultUSBDeviceCallback
     this.onDisconnectCallback = config.onDisconnectCallback || defaultUSBDeviceCallback
 
@@ -46,7 +48,7 @@ export class KeepKeyManager {
         await this.get(usbDevice.serialNumber).initialize()
         continue
       }
-      let k = KeepKey.withWebUSB({ usbDevice, events: this.events, ...webusbConfig })
+      let k = KeepKey.withWebUSB({ usbDevice, events: this.deviceEvents, ...webusbConfig })
       const features = await k.initialize()
       if (features) this.add(k, usbDevice.serialNumber)
     }
@@ -58,6 +60,7 @@ export class KeepKeyManager {
     const id = deviceID || keepkey.features.deviceId
     if (!(this.keepkeys[id])) {
       this.keepkeys[id] = keepkey
+      // this.decorateEvents(deviceID, keepkey.device.events)
       return true
     }
     return false
@@ -119,4 +122,8 @@ export class KeepKeyManager {
         this.onDisconnectCallback(deviceID)
       })
   }
+  
+  // protected decorateEvents (deviceID: string, events: eventemitter3.EventEmitterStatic): void {
+  //   events.onAny((e: string, ...values: any[]) => this.deviceEvents.emit([e, deviceID], [deviceID, ...values]))
+  // }
 }

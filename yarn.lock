@@ -3874,6 +3874,11 @@ run-parallel@^1.1.2:
   resolved "https://registry.yarnpkg.com/run-parallel/-/run-parallel-1.1.9.tgz#c9dd3a7cf9f4b2c4b6244e173a6ed866e61dd679"
   integrity sha512-DEqnSRTDw/Tc3FXf49zedI638Z9onwUotBMiUFKmrO2sdFKIbXamXGQ3Axd4qgphxKB4kw/qP1w5kTxnfU1B9Q==
 
+rx-singleton-lock@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/rx-singleton-lock/-/rx-singleton-lock-1.1.1.tgz#521f9009a51d574e34fa03db3f8a7b35a3b5c72a"
+  integrity sha512-Lhp4Kx04uwBpaDCv/2bloqCCeMewUylqEywgFHF3m3qDIarYHx+m6ED8gxFNQrtZdUrk9PGQ4qZDmx6AkUW1dw==
+
 rxjs@^5.5.2:
   version "5.5.12"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.12.tgz#6fa61b8a77c3d793dbaf270bee2f43f652d741cc"
