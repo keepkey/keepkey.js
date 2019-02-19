@@ -1,13 +1,15 @@
-import * as Messages from '@keepkey/device-protocol/lib/messages_pb'
-import * as Types from '@keepkey/device-protocol/lib/types_pb'
-import * as Exchanges from '@keepkey/device-protocol/lib/exchange_pb'
+import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
+import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
+import * as ProtoExchange from '@keepkey/device-protocol/lib/exchange_pb'
 import { Device } from './device'
 import { WebUSBDevice, WebUSBDeviceConfig } from './devices/webUSBDevice'
 import { Event } from './event'
 import { messageTypeRegistry } from './typeRegistry'
 import { fromHexString, toHexString, arrayify, protoFieldToSetMethod, bip32ToAddressNList } from './utils'
 
-const MessageTypes = Messages as any // Conflict between typedef and actual js export
+const { default: Messages } = ProtoMessages as any // Conflict between typedef and actual js export
+const { default: Types } = ProtoTypes as any // Conflict between typedef and actual js export
+const { default: Exchange } = ProtoExchange as any // Conflict between typedef and actual js export
 
 interface KeepKeyConfig {
   autoButton?: boolean
@@ -21,7 +23,7 @@ const initialKeepKeyArgs = {
 
 export class KeepKey {
 
-  public features: Messages.Features.AsObject
+  public features: ProtoMessages.Features.AsObject
 
   public autoButton: boolean = false
   public device: Device
@@ -36,7 +38,6 @@ export class KeepKey {
   }
 
   public static withWebUSB (webUSBDeviceConfig: WebUSBDeviceConfig): KeepKey {
-    console.log(KeepKey)
     return new KeepKey({ autoButton: false, device: new WebUSBDevice(webUSBDeviceConfig) })
   }
 
@@ -53,7 +54,7 @@ export class KeepKey {
   }
 
   public async acknowledgeWithCharacterProto (character: string, _delete: boolean, _done: boolean): Promise<[number, any]> {
-    const characterAck = new MessageTypes.default.CharacterAck()
+    const characterAck = new Messages.CharacterAck()
     if (character !== '') {
       characterAck.setCharacter(character)
     } else if (_delete) {
@@ -74,7 +75,7 @@ export class KeepKey {
 
   // Send passphrase to the device, this will typically be called in response to a MESSAGETYPE_PASSPHRASEREQUEST event
   public async acknowledgeWithPassphrase (passphrase: string): Promise<[number, any]> {
-    const passphraseAck = new MessageTypes.default.PassphraseAck()
+    const passphraseAck = new Messages.PassphraseAck()
     passphraseAck.setPassphrase(passphrase)
     // User may be propmpted for button press up to 2 times
     const [typeEnum, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK, passphraseAck)
@@ -88,7 +89,7 @@ export class KeepKey {
 
   // Send pin to the device, this will typically be called in response to a MESSAGETYPE_PINMATRIXREQUEST event
   public async acknowledgeWithPin (pin: string): Promise<[number, any]> {
-    const matrixAck = new MessageTypes.default.PinMatrixAck()
+    const matrixAck = new Messages.PinMatrixAck()
     matrixAck.setPin(pin)
     // User may be propmpted for button press up to 2 times
     const [typeEnum, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_PINMATRIXACK, matrixAck)
@@ -101,19 +102,19 @@ export class KeepKey {
   }
 
   // ApplyPolicy enables or disables a named policy such as "ShapeShift" on the device
-  public async applyPolicy (p: Types.PolicyType.AsObject): Promise<void> {
+  public async applyPolicy (p: ProtoTypes.PolicyType.AsObject): Promise<void> {
     const policy = new Types.PolicyType()
     policy.setPolicyName(p.policyName)
     policy.setEnabled(p.enabled)
-    const applyPolicies = new MessageTypes.default.ApplyPolicies()
+    const applyPolicies = new Messages.ApplyPolicies()
     applyPolicies.setPolicyList([policy])
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_APPLYPOLICIES, applyPolicies)
   }
 
   // ApplySettings changes the label, language, and enabling/disabling the passphrase
   // The default language is english
-  public async applySettings (s: Messages.ApplySettings.AsObject): Promise<void> {
-    const applySettings = new MessageTypes.default.ApplySettings()
+  public async applySettings (s: ProtoMessages.ApplySettings.AsObject): Promise<void> {
+    const applySettings = new Messages.ApplySettings()
     if (s.label) {
       applySettings.setLabel(s.label)
     }
@@ -140,7 +141,7 @@ export class KeepKey {
 
    // ChangePin requests setting/changing the pin
   public async changePin (): Promise<void> {
-    const changePin = new MessageTypes.default.ChangePin()
+    const changePin = new Messages.ChangePin()
     // User may be propmpted for button press up to 2 times
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_CHANGEPIN, changePin)
   }
@@ -149,9 +150,9 @@ export class KeepKey {
   // This method encrypts if encrypt is true and decrypts if false, the confirm paramater determines wether
   // the user is prompted on the device. See EncryptKeyValue() and DecryptKeyValue() for convenience methods
   // NOTE: If the length of the value in bytes is not divisible by 16 it will be zero padded
-  public async cipherKeyValue (v: Messages.CipherKeyValue.AsObject): Promise<string | Uint8Array> {
+  public async cipherKeyValue (v: ProtoMessages.CipherKeyValue.AsObject): Promise<string | Uint8Array> {
     // if(val.length % 16 !== 0) val = val.concat() TODO THIS
-    const cipherKeyValue = new MessageTypes.default.CipherKeyValue()
+    const cipherKeyValue = new Messages.CipherKeyValue()
     cipherKeyValue.setAddressNList(v.addressNList)
     cipherKeyValue.setKey(v.key)
     cipherKeyValue.setValue(v.value)
@@ -160,31 +161,31 @@ export class KeepKey {
     cipherKeyValue.setAskOnDecrypt(v.askOnDecrypt || false)
     cipherKeyValue.setIv(v.iv || '')
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_CIPHERKEYVALUE, cipherKeyValue)
-    const { value } = (response as Messages.CipheredKeyValue).toObject()
+    const { value } = (response as ProtoMessages.CipheredKeyValue).toObject()
     return value
   }
 
   // ClearSession clears cached session values such as the pin and passphrase
   public async clearSession (): Promise<void> {
-    const clearSession = new MessageTypes.default.ClearSession()
+    const clearSession = new Messages.ClearSession()
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_CLEARSESSION, clearSession)
   }
 
   // DecryptKeyValue is a convenience method around decrypting with CipherKeyValue().
   // For more granular control of the process use CipherKeyValue()
-  public async decryptKeyValue (v: Messages.CipherKeyValue.AsObject): Promise<string | Uint8Array> {
+  public async decryptKeyValue (v: ProtoMessages.CipherKeyValue.AsObject): Promise<string | Uint8Array> {
     return this.cipherKeyValue(v)
   }
 
   // EthereumGetAddress returns the ethereum address associated with the given node path
   // Optionally you can display  the address on the screen
-  public async ethereumGetAddress (a: Messages.EthereumGetAddress.AsObject): Promise<string> {
-    const getAddr = new MessageTypes.default.EthereumGetAddress()
+  public async ethereumGetAddress (a: ProtoMessages.EthereumGetAddress.AsObject): Promise<string> {
+    const getAddr = new Messages.EthereumGetAddress()
     getAddr.setAddressNList(a.addressNList)
     getAddr.setShowDisplay(a.showDisplay !== false)
     // send, receive ethereumaddress message
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr)
-    const ethAddress = response as Messages.EthereumAddress
+    const ethAddress = response as ProtoMessages.EthereumAddress
 
     if (ethAddress.hasAddressStr()) {
       return ethAddress.getAddressStr()
@@ -198,14 +199,14 @@ export class KeepKey {
   // Sign an ethereum transaction using a given node path
   // The user may be prompted for a pin and/or passphrase if they are enabled
   public async ethereumSignTx (
-    tx: Messages.EthereumSignTx.AsObject,
-    addressType?: Types.OutputAddressType,
-    exchangeType?: Types.ExchangeType,
+    tx: ProtoMessages.EthereumSignTx.AsObject,
+    addressType?: ProtoTypes.OutputAddressType,
+    exchangeType?: ProtoTypes.ExchangeType,
     data?: Uint8Array | string,
     chainId?: number
   ): Promise<any> {
 
-    const est: Messages.EthereumSignTx = new MessageTypes.default.EthereumSignTx()
+    const est: ProtoMessages.EthereumSignTx = new Messages.EthereumSignTx()
 
     if (addressType === Types.OutputAddressType.TRANSFER) {
       throw Error('Not implemented yet.')
@@ -245,11 +246,11 @@ export class KeepKey {
       est.setChainId(chainId)
     }
 
-    let response: Messages.EthereumTxRequest
+    let response: ProtoMessages.EthereumTxRequest
 
     // Make initial request
     let nextResponse = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est)
-    response = nextResponse[1] as Messages.EthereumTxRequest
+    response = nextResponse[1] as ProtoMessages.EthereumTxRequest
 
     while (response.hasDataLength()) {
       const dataLength = response.getDataLength()
@@ -257,7 +258,7 @@ export class KeepKey {
       dataRemaining = dataRemaining.slice(dataLength, dataRemaining.length)
 
       nextResponse = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est)
-      response = nextResponse[1] as Messages.EthereumTxRequest
+      response = nextResponse[1] as ProtoMessages.EthereumTxRequest
     }
 
     return {
@@ -267,20 +268,20 @@ export class KeepKey {
     }
   }
 
-  public async ethereumSignMessage (m: Messages.EthereumSignMessage.AsObject): Promise<any> {
-    const msg = new MessageTypes.default.EthereumSignMessage()
+  public async ethereumSignMessage (m: ProtoMessages.EthereumSignMessage.AsObject): Promise<any> {
+    const msg = new Messages.EthereumSignMessage()
     msg.setAddressNList(m.addressNList || bip32ToAddressNList("m/44'/60'/0'/0/0"))
     msg.setMessage(m.message)
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, msg)
-    const sig = (response as Messages.EthereumMessageSignature).toObject()
+    const sig = (response as ProtoMessages.EthereumMessageSignature).toObject()
     return {
       address: sig.address,
       signature: sig.signature
     }
   }
 
-  public async ethereumVerifyMessage (m: Messages.EthereumVerifyMessage.AsObject): Promise<any> {
-    const msg = new MessageTypes.default.EthereumVerifyMessage()
+  public async ethereumVerifyMessage (m: ProtoMessages.EthereumVerifyMessage.AsObject): Promise<any> {
+    const msg = new Messages.EthereumVerifyMessage()
     msg.setAddress(m.address)
     msg.setSignature(m.signature)
     msg.setMessage(m.message)
@@ -290,18 +291,18 @@ export class KeepKey {
 
   // FirmwareErase askes the device to erase its firmware
   public async firmwareErase (): Promise<void> {
-    const firmwareErase = new MessageTypes.default.FirmwareErase()
+    const firmwareErase = new Messages.FirmwareErase()
     // send
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_FIRMWAREERASE, firmwareErase)
   }
 
   // Initialize assigns a hid connection to this KeepKey and send initialize message to device
-  public async initialize (): Promise<Messages.Features.AsObject | void> {
+  public async initialize (): Promise<ProtoMessages.Features.AsObject | void> {
     await this.device.initialize()
     // send initialize
-    const initialize = new MessageTypes.default.Initialize()
-    const [_, response] = await this.device.exchange(MessageTypes.default.MessageType.MESSAGETYPE_INITIALIZE, initialize)
-    const features = (response as Messages.Features).toObject()
+    const initialize = new Messages.Initialize()
+    const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_INITIALIZE, initialize)
+    const features = (response as ProtoMessages.Features).toObject()
     this.features = features
 
     return features
@@ -310,54 +311,54 @@ export class KeepKey {
   // GetAddress returns an address string given a node path and a coin type.
   // Optionally you can display the address on the device screen
   // If passphrase is enabled this may request the passphrase.
-  public async getAddress (g: Messages.GetAddress.AsObject): Promise<string> {
-    const address = new MessageTypes.default.GetAddress()
+  public async getAddress (g: ProtoMessages.GetAddress.AsObject): Promise<string> {
+    const address = new Messages.GetAddress()
     address.setAddressNList(g.addressNList)
     address.setCoinName(g.coinName)
     address.setShowDisplay(g.showDisplay !== false)
     address.setScriptType(g.scriptType || Types.InputScriptType.SPENDADDRESS)
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETADDRESS, address)
-    const msg = (response as Messages.Address).toObject()
+    const msg = (response as ProtoMessages.Address).toObject()
     return msg.address
   }
 
   // GetFeatures returns the features and other device information such as the version, label, and supported coins
-  public async getFeatures (): Promise<Messages.Features.AsObject> {
-    const features = new MessageTypes.default.GetFeatures()
+  public async getFeatures (): Promise<ProtoMessages.Features.AsObject> {
+    const features = new Messages.GetFeatures()
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETFEATURES, features)
-    return (response as Messages.Features).toObject()
+    return (response as ProtoMessages.Features).toObject()
   }
 
   // GetEntropy requests sample data from the hardware RNG
   public async getEntropy (size: number): Promise<string | Uint8Array> {
-    const getEntropy = new MessageTypes.default.GetEntropy()
+    const getEntropy = new Messages.GetEntropy()
     getEntropy.setSize(size)
     // send
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETENTROPY, getEntropy)
-    const { entropy } = (response as Messages.Entropy).toObject()
+    const { entropy } = (response as ProtoMessages.Entropy).toObject()
     return entropy
   }
 
   // GetPublicKey asks the device for a public key corresponding to a nodePath and curve name.
   // Returns the hdnode, the XPUB as a string and a possidble error
   // This may prompt the user for a passphrase
-  public async getPublicKey (g: Messages.GetPublicKey.AsObject): Promise<[Types.HDNodeType.AsObject, string]> {
-    const getPublicKey = new MessageTypes.default.GetPublicKey()
+  public async getPublicKey (g: ProtoMessages.GetPublicKey.AsObject): Promise<[ProtoTypes.HDNodeType.AsObject, string]> {
+    const getPublicKey = new Messages.GetPublicKey()
     getPublicKey.setAddressNList(g.addressNList)
     getPublicKey.setEcdsaCurveName(g.ecdsaCurveName || 'secp256k1')
     getPublicKey.setShowDisplay(g.showDisplay || false)
     getPublicKey.setScriptType(g.scriptType || Types.InputScriptType.SPENDADDRESS)
     // send
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETPUBLICKEY, getPublicKey)
-    const publicKey = (response as Messages.PublicKey).toObject()
+    const publicKey = (response as ProtoMessages.PublicKey).toObject()
     return [publicKey.node, publicKey.xpub]
   }
 
   // GetNumCoins returns the number of coins supported by the device regardless of if the hanve funds.
   public async getNumCoins (): Promise<number> {
-    const getCoinTable = new MessageTypes.default.GetCoinTable()
+    const getCoinTable = new Messages.GetCoinTable()
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable)
-    return (response as Messages.CoinTable).getNumCoins()
+    return (response as ProtoMessages.CoinTable).getNumCoins()
   }
 
   public async getAllCoinsAsMap () {
@@ -380,17 +381,17 @@ export class KeepKey {
 
   // GetCoinTable returns an array of Types.CoinTypes, with start and end arguments for paging.
   // You cannot request more than 10 at a time.
-  public async getCoinTable (start: number = 0, end: number = start + 10): Promise<Types.CoinType.AsObject[]> {
-    const getCoinTable = new MessageTypes.default.GetCoinTable()
+  public async getCoinTable (start: number = 0, end: number = start + 10): Promise<ProtoTypes.CoinType.AsObject[]> {
+    const getCoinTable = new Messages.GetCoinTable()
     getCoinTable.setStart(start)
     getCoinTable.setEnd(end)
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable)
-    const coinTable = (response as Messages.CoinTable).toObject()
+    const coinTable = (response as ProtoMessages.CoinTable).toObject()
     return coinTable.tableList
   }
 
   // getCoinShortcutXPubPairs returns an array of [coinShortcut, xPub] pairs
-  public async getCoinShortcutXPubPairs (coinTable: Types.CoinType.AsObject[]): Promise<[string, string][]> {
+  public async getCoinShortcutXPubPairs (coinTable: ProtoTypes.CoinType.AsObject[]): Promise<[string, string][]> {
     const publicKeys = await Promise.all(coinTable.map(coinType => this.getPublicKey({
       addressNList: [2147483648 + 44, coinType.bip44AccountPath, 2147483648]
     })))
@@ -404,8 +405,8 @@ export class KeepKey {
   // LoadDevice loads a provided seed onto the device and applies the provided settings
   // including setting a pin/device label, enabling/disabling the passphrase, and whether to
   // check the checksum of the provided mnemonic
-  public async loadDevice (l: Messages.LoadDevice.AsObject): Promise<void> {
-    const loadDevice = new MessageTypes.default.LoadDevice()
+  public async loadDevice (l: ProtoMessages.LoadDevice.AsObject): Promise<void> {
+    const loadDevice = new Messages.LoadDevice()
     loadDevice.setMnemonic(l.mnemonic)
     loadDevice.setPassphraseProtection(l.passphraseProtection || false)
     loadDevice.setSkipChecksum(l.skipChecksum || true)
@@ -415,11 +416,11 @@ export class KeepKey {
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_LOADDEVICE, loadDevice)
   }
 
-  public async recoveryDevice (r: Messages.RecoveryDevice.AsObject): Promise<void> {
+  public async recoveryDevice (r: ProtoMessages.RecoveryDevice.AsObject): Promise<void> {
     if (r.wordCount !== 12 && r.wordCount !== 18 && r.wordCount !== 24) {
       throw new Error('Invalid word count. Use 12/18/24')
     }
-    const msg = new MessageTypes.default.RecoveryDevice()
+    const msg = new Messages.RecoveryDevice()
     msg.setWordCount(r.wordCount)
     msg.setPassphraseProtection(r.passphraseProtection)
     msg.setPinProtection(r.pinProtection)
@@ -437,14 +438,14 @@ export class KeepKey {
 
   // Ping the device. If a message is provided it will be shown on the device screen and returned
   // in the success message. Optionally require a button press, pin, or passphrase to continue
-  public async ping (p: Messages.Ping.AsObject): Promise<string | undefined> {
-    const ping = new MessageTypes.default.Ping()
+  public async ping (p: ProtoMessages.Ping.AsObject): Promise<string | undefined> {
+    const ping = new Messages.Ping()
     ping.setMessage(p.message)
     ping.setButtonProtection(p.buttonProtection || false)
     ping.setPinProtection(p.pinProtection || false)
     ping.setPassphraseProtection(p.passphraseProtection || false)
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_PING, ping)
-    const { message } = (response as Messages.Success).toObject()
+    const { message } = (response as ProtoMessages.Success).toObject()
     return message
   }
 
@@ -479,7 +480,7 @@ export class KeepKey {
       if (exchangeOutputs && exchangeOutputs[k]) {
         const exchangeOutput = exchangeOutputs[k]
         // convert the base64 encoded signedExchangeResponse message into the correct object
-        const signedExchange = Exchanges.SignedExchangeResponse.deserializeBinary(exchangeOutput.signed_exchange_response)
+        const signedExchange = Exchange.SignedExchangeResponse.deserializeBinary(exchangeOutput.signed_exchange_response)
         // decode the deposit amount from a little-endian Uint8Array into an unsigned uint64
         let depAmt = signedExchange.getResponsev2().getDepositAmount_asU8()
         let val = 0
@@ -543,7 +544,7 @@ export class KeepKey {
   // RemovePin disables pin protection for the device. If a pin is currently enabled
   // it will prompt the user to enter the current pin
   public async removePin (): Promise<void> {
-    const changePin = new MessageTypes.default.ChangePin()
+    const changePin = new Messages.ChangePin()
     changePin.setRemove(true)
     // send
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_CHANGEPIN, changePin)
@@ -552,8 +553,8 @@ export class KeepKey {
   // ResetDevice generates a new seed using device RNG for entropy and applies the provided settings
   // The device must be uninitialized  before calling this method. This can be achieved by calling WipeDevice()
   // The device entropy strength must be 128, 192, or 256
-  public async resetDevice (r: Messages.ResetDevice.AsObject): Promise<void> {
-    const resetDevice = new MessageTypes.default.ResetDevice()
+  public async resetDevice (r: ProtoMessages.ResetDevice.AsObject): Promise<void> {
+    const resetDevice = new Messages.ResetDevice()
     resetDevice.setStrength(r.strength || 128)
     resetDevice.setDisplayRandom(r.displayRandom || false)
     resetDevice.setPassphraseProtection(r.passphraseProtection || false)
@@ -597,7 +598,7 @@ export class KeepKey {
     const txmap = await this.prepareSignTx(coinName, inputs, outputs, exchangeOutputs)
 
     // Prepare and send initial message
-    const tx = new MessageTypes.default.SignTx()
+    const tx = new Messages.SignTx()
     tx.setInputsCount(inputs.length)
     tx.setOutputsCount(outputs.length)
     tx.setCoinName(coinName)
@@ -618,7 +619,7 @@ export class KeepKey {
       messageCount += 1
 
       if (responseType === Messages.MessageType.MESSAGETYPE_FAILURE) {
-        const errorResponse = response as Messages.Failure
+        const errorResponse = response as ProtoMessages.Failure
         throw new Error(`Signing failed: ${errorResponse.getMessage()}`)
       }
 
@@ -626,7 +627,7 @@ export class KeepKey {
         throw new Error(`Unexpected message type: ${responseType}`)
       }
 
-      let txRequest = response as Messages.TxRequest
+      let txRequest = response as ProtoMessages.TxRequest
 
       // If there's some part of signed transaction, add it
       if (txRequest.hasSerialized() && txRequest.getSerialized().hasSerializedTx()) {
@@ -645,9 +646,9 @@ export class KeepKey {
         break
       }
 
-      let currentTx: Types.TransactionType = null
-      let msg: Types.TransactionType = null
-      let txAck: Messages.TxAck = null
+      let currentTx: ProtoTypes.TransactionType = null
+      let msg: ProtoTypes.TransactionType = null
+      let txAck: ProtoMessages.TxAck = null
 
       // Device asked for one more information, let's process it.
       if (txRequest.hasDetails() && !txRequest.getDetails().hasTxHash()) {
@@ -671,7 +672,7 @@ export class KeepKey {
         } else {
           msg.setExtraDataLen(0)
         }
-        txAck = new MessageTypes.default.TxAck()
+        txAck = new Messages.TxAck()
         txAck.setTx(msg)
         let nextResponse = await this.device.exchange(Messages.MessageType.MESSAGETYPE_TXACK, txAck)
         responseType = nextResponse[0]
@@ -680,7 +681,7 @@ export class KeepKey {
       if (txRequest.getRequestType() === Types.RequestType.TXINPUT) {
         msg = new Types.TransactionType()
         msg.setInputsList([currentTx.getInputsList()[txRequest.getDetails().getRequestIndex()]])
-        txAck = new MessageTypes.default.TxAck()
+        txAck = new Messages.TxAck()
         txAck.setTx(msg)
         let nextResponse = await this.device.exchange(Messages.MessageType.MESSAGETYPE_TXACK, txAck)
         responseType = nextResponse[0]
@@ -694,7 +695,7 @@ export class KeepKey {
           msg.setOutputsList([currentTx.getOutputsList()[txRequest.getDetails().getRequestIndex()]])
           msg.setOutputsCnt(1)
         }
-        txAck = new MessageTypes.default.TxAck()
+        txAck = new Messages.TxAck()
         txAck.setTx(msg)
         let nextResponse = await this.device.exchange(Messages.MessageType.MESSAGETYPE_TXACK, txAck)
         responseType = nextResponse[0]
@@ -705,7 +706,7 @@ export class KeepKey {
         let length = txRequest.getDetails().getExtraDataLen()
         msg = new Types.TransactionType()
         msg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length))
-        txAck = new MessageTypes.default.TxAck()
+        txAck = new Messages.TxAck()
         txAck.setTx(msg)
         let nextResponse = await this.device.exchange(Messages.MessageType.MESSAGETYPE_TXACK, txAck)
         responseType = nextResponse[0]
@@ -721,29 +722,29 @@ export class KeepKey {
   }
 
   // SignMessage signs a message using the given nodepath and Coin
-  public async signMessage (s: Messages.SignMessage.AsObject): Promise<Array<string | Uint8Array>> {
-    const sign = new MessageTypes.default.SignMessage()
+  public async signMessage (s: ProtoMessages.SignMessage.AsObject): Promise<Array<string | Uint8Array>> {
+    const sign = new Messages.SignMessage()
     sign.setAddressNList(s.addressNList)
     sign.setMessage(s.message)
     sign.setCoinName(s.coinName)
     sign.setScriptType(s.scriptType || Types.InputScriptType.SPENDADDRESS)
     // send
     const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_SIGNMESSAGE, sign)
-    const messageSignature = (response as Messages.MessageSignature).toObject()
+    const messageSignature = (response as ProtoMessages.MessageSignature).toObject()
     return [messageSignature.signature, messageSignature.address]
   }
 
   // SoftReset power cycles the device. The device only responds to
   // this message while in manufacturer mode
   public async softReset (): Promise<void> {
-    const softReset = new MessageTypes.default.SoftReset()
+    const softReset = new Messages.SoftReset()
     // send
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_SOFTRESET, softReset)
   }
 
   // VerifyMessage verifies a signed message
   public async verifyMessage (addr: string, coinName: string, msg: string | Uint8Array, sig: string | Uint8Array): Promise<void> {
-    const verify = new MessageTypes.default.VerifyMessage()
+    const verify = new Messages.VerifyMessage()
     verify.setAddress(addr)
     verify.setSignature(sig)
     verify.setMessage(msg)
@@ -754,7 +755,7 @@ export class KeepKey {
 
   // WipeDevice wipes all sensitive data and settings
   public async wipeDevice (): Promise<void> {
-    const wipeDevice = new MessageTypes.default.WipeDevice()
+    const wipeDevice = new Messages.WipeDevice()
     // send
     await this.device.exchange(Messages.MessageType.MESSAGETYPE_WIPEDEVICE, wipeDevice)
   }

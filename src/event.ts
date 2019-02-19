@@ -5,7 +5,7 @@ export interface Event {
   message_type?: string
   message_enum: number
   from_device: boolean
-  device_id: string
+  device_id?: string
   interface?: Interface
   message: {},
   date?: number

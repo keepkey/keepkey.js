@@ -91,9 +91,9 @@ export class KeepKeyManager {
       await keepkey.device.disconnect()
     } catch (e) {
       console.error(e)
+    } finally {
+      delete this.keepkeys[deviceID]
     }
-
-    delete this.keepkeys[deviceID]
   }
 
   public async removeAll (): Promise<void> {
@@ -117,10 +117,7 @@ export class KeepKeyManager {
     const deviceID = e.device.serialNumber
     this.remove(deviceID)
       .then(() => this.onDisconnectCallback(deviceID))
-      .catch((e) => {
-        console.error(e)
-        this.onDisconnectCallback(deviceID)
-      })
+      .catch((e) => this.onDisconnectCallback(deviceID))
   }
   
   // protected decorateEvents (deviceID: string, events: eventemitter3.EventEmitterStatic): void {
