@@ -1,5 +1,17 @@
+import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
+import * as eventemitter3 from 'eventemitter3'
+import { Observable, concat, fromEvent } from 'rxjs'
+import { take } from 'rxjs/operators'
+
+const { default: Messages } = ProtoMessages as any // Conflict between typedef and actual js export
+
 export const VENDOR_ID = 0x2b24
 export const PRODUCT_ID = 0x0002
+
+export const EXIT_TYPES = [
+  String(Messages.MessageType.MESSAGETYPE_CANCEL),
+  String(Messages.MessageType.MESSAGETYPE_FAILURE)
+]
 
 export function typeIDFromMessageBuffer(bb: ByteBuffer) {
   let value = 0
@@ -92,4 +104,11 @@ export function bip32ToAddressNList (address: string): number[] {
 
 export function bip32Like (address: string): boolean {
   return address.slice(0, 2) === 'm/'
+}
+
+export function takeFirstOfManyEvents(eventEmitter: eventemitter3, events: string[], ...extraObservables: Observable<any>[]): Observable<{}> {
+  return concat(
+    ...events.map(event => fromEvent<Event>(eventEmitter, event)),
+    ...extraObservables
+  ).pipe(take(1))
 }

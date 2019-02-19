@@ -45,6 +45,7 @@ export class KeepKeyManager {
 
     for (const usbDevice of devicesToInitialize) {
       if (this.keepkeys[usbDevice.serialNumber]) {
+        console.log(usbDevice.serialNumber, this.get(usbDevice.serialNumber))
         await this.get(usbDevice.serialNumber).initialize()
         continue
       }
@@ -87,7 +88,7 @@ export class KeepKeyManager {
 
     try {
       const keepkey = this.get(deviceID)
-      await keepkey.clearSession()
+      // await keepkey.clearSession()
       await keepkey.device.disconnect()
     } catch (e) {
       console.error(e)

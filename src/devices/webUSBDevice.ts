@@ -45,10 +45,7 @@ export class WebUSBDevice extends Device {
     await this.usbDevice.claimInterface(0)
 
     // Start reading data from usbDevice
-    if(!this.isListening) {
-      this.isListening = true
-      this.listen()
-    }
+    this.listen()
   }
 
   public async disconnect (): Promise<void> {
