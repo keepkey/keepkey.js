@@ -1,0 +1,30 @@
+{
+  "name": "@keepkey/keepkey.js",
+  "version": "2.0.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "scripts": {
+    "build": "microbundle --name=keepkey",
+    "build:browser": "microbundle --target=web --external=none --name=keepkey",
+    "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
+    "clean": "rm -rf dist .rts2_*",
+    "dev": "microbundle watch --name=keepkey",
+    "dev:browser": "microbundle watch --target=web --external=none --name=keepkey",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+    "@keepkey/device-protocol": "^6.0.2",
+    "@keepkey/core": "^2.0.0",
+    "eventemitter3": "^3.1.0"
+  },
+  "devDependencies": {
+    "microbundle": "^0.9.0",
+    "@types/eventemitter3": "^2.0.2"
+  }
+}

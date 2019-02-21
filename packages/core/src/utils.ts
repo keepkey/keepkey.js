@@ -8,6 +8,10 @@ const { default: Messages } = ProtoMessages as any // Conflict between typedef a
 export const VENDOR_ID = 0x2b24
 export const PRODUCT_ID = 0x0002
 
+export type WebUSBInterface = 'StandardWebUSB' | 'DebugWebUSB'
+
+export type Interface = WebUSBInterface
+
 export const EXIT_TYPES = [
   String(Messages.MessageType.MESSAGETYPE_CANCEL),
   String(Messages.MessageType.MESSAGETYPE_FAILURE)
@@ -106,9 +110,8 @@ export function bip32Like (address: string): boolean {
   return address.slice(0, 2) === 'm/'
 }
 
-export function takeFirstOfManyEvents(eventEmitter: eventemitter3, events: string[], ...extraObservables: Observable<any>[]): Observable<{}> {
+export function takeFirstOfManyEvents(eventEmitter: eventemitter3, events: string[]): Observable<{}> {
   return concat(
-    ...events.map(event => fromEvent<Event>(eventEmitter, event)),
-    ...extraObservables
+    ...events.map(event => fromEvent<Event>(eventEmitter, event))
   ).pipe(take(1))
 }

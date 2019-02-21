@@ -9,22 +9,18 @@ import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
 import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
 
 import { messageTypeRegistry } from './typeRegistry'
-import { EXIT_TYPES, typeIDFromMessageBuffer, takeFirstOfManyEvents } from './utils'
-import { WebUSBInterface } from './devices/webUSBDevice'
+import { EXIT_TYPES, Interface, typeIDFromMessageBuffer, takeFirstOfManyEvents } from './utils'
 import { makeEvent } from './event'
 
 const { default: Messages } = ProtoMessages as any
 const { default: Types } = ProtoTypes as any
 const { default: { concat: concatBuffers, wrap } } = ByteBuffer as any
 
-export type Interface = WebUSBInterface
-
 export abstract class Device {
-
-  protected abstract interface: Interface
 
   protected lock: RxSingletonLock = new RxSingletonLock()
 
+  protected abstract interface: Interface
   public abstract events: eventemitter3
   public abstract get isInitialized (): boolean
 
@@ -35,59 +31,54 @@ export abstract class Device {
   protected abstract async write (buff: ByteBuffer): Promise<void>
   protected abstract async read (): Promise<ByteBuffer>
 
-  public listen = (() => {
-    let shouldListen = true
-    return async () => {
-      if(!shouldListen) return
-      shouldListen = false
-      while(this.isInitialized) {
-        try {
-          const buf = await this.read()
-          if(!buf) continue
-          const [msgTypeEnum, msg] = this.fromMessageBuffer(buf)
-          console.log('got message', msgTypeEnum, msg)
-          this.events.emit(String(msgTypeEnum), makeEvent({
-            message_enum: msgTypeEnum,
-            message: msg.toObject(),
-            from_device: true
-          }))
-          if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_BUTTONREQUEST) {
-            this.exchange(Messages.MessageType.MESSAGETYPE_BUTTONACK, new Messages.ButtonAck())
-          }
-          if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_ENTROPYREQUEST) {
-            const ack = new Messages.EntropyAck()
-            ack.setEntropy(this.getEntropy(32))
-            this.exchange(Messages.MessageType.MESSAGETYPE_ENTROPYACK, ack)
-          }
-          if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PINMATRIXREQUEST) {
-            this.lock.singleton(
-              takeFirstOfManyEvents(this.events, [
-                String(Messages.MessageType.MESSAGETYPE_PINMATRIXACK), ...EXIT_TYPES
-              ])
-            )
-          }
-          if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
-            this.lock.singleton(
-              takeFirstOfManyEvents(this.events, [
-                String(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK), ...EXIT_TYPES
-              ])
-            )
-          }
-          if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_CHARACTERREQUEST) {
-            this.lock.singleton(
-              takeFirstOfManyEvents(this.events, [
-                String(Messages.MessageType.MESSAGETYPE_CHARACTERACK), ...EXIT_TYPES
-              ])
-            )
-          }
-        } catch(e) {
-          console.error(e)
-        } finally {
-          console.log('done listen')
+  public async listen() {
+    while(this.isInitialized) {
+      try {
+        const buf = await this.read()
+        if(!buf) continue
+        const [msgTypeEnum, msg] = this.fromMessageBuffer(buf)
+        console.log('got message', msgTypeEnum, msg)
+        this.events.emit(String(msgTypeEnum), makeEvent({
+          message_enum: msgTypeEnum,
+          message: msg.toObject(),
+          from_device: true
+        }))
+        if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_BUTTONREQUEST) {
+          this.exchange(Messages.MessageType.MESSAGETYPE_BUTTONACK, new Messages.ButtonAck())
         }
+        if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_ENTROPYREQUEST) {
+          const ack = new Messages.EntropyAck()
+          ack.setEntropy(this.getEntropy(32))
+          this.exchange(Messages.MessageType.MESSAGETYPE_ENTROPYACK, ack)
+        }
+        if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PINMATRIXREQUEST) {
+          this.lock.singleton(
+            takeFirstOfManyEvents(this.events, [
+              String(Messages.MessageType.MESSAGETYPE_PINMATRIXACK), ...EXIT_TYPES
+            ])
+          )
+        }
+        if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
+          this.lock.singleton(
+            takeFirstOfManyEvents(this.events, [
+              String(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK), ...EXIT_TYPES
+            ])
+          )
+        }
+        if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_CHARACTERREQUEST) {
+          this.lock.singleton(
+            takeFirstOfManyEvents(this.events, [
+              String(Messages.MessageType.MESSAGETYPE_CHARACTERACK), ...EXIT_TYPES
+            ])
+          )
+        }
+      } catch(e) {
+        console.error(e)
+      } finally {
+        console.log('done listen')
       }
     }
-  })()
+  }
 
   public exchange (msgTypeEnum: number, msg: Message, anticipatedEvents: string[] = []): Observable<void | {}> {
     console.log(msgTypeEnum, msg)

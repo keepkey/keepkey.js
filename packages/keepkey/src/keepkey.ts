@@ -1,11 +1,7 @@
 import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
 import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
 import * as ProtoExchange from '@keepkey/device-protocol/lib/exchange_pb'
-import { Device } from './device'
-import { WebUSBDevice, WebUSBDeviceConfig } from './devices/webUSBDevice'
-import { Event } from './event'
-import { messageTypeRegistry } from './typeRegistry'
-import { EXIT_TYPES, fromHexString, toHexString, arrayify, protoFieldToSetMethod, bip32ToAddressNList } from './utils'
+import { Device, Event, EXIT_TYPES, messageTypeRegistry, fromHexString, toHexString, arrayify, protoFieldToSetMethod, bip32ToAddressNList } from '@keepkey/core'
 
 const { default: Messages } = ProtoMessages as any // Conflict between typedef and actual js export
 const { default: Types } = ProtoTypes as any // Conflict between typedef and actual js export
@@ -35,10 +31,6 @@ export class KeepKey {
     }
     this.autoButton = mergedConfig.autoButton
     this.device = mergedConfig.device
-  }
-
-  public static withWebUSB (webUSBDeviceConfig: WebUSBDeviceConfig): KeepKey {
-    return new KeepKey({ autoButton: false, device: new WebUSBDevice(webUSBDeviceConfig) })
   }
 
   // public async acknowledgeWithCharacter (character: string): Promise<[number, any]> {

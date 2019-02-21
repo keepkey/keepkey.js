@@ -1,15 +1,12 @@
-/// <reference path="../../node_modules/@types/w3c-web-usb/index.d.ts" />
+/// <reference path="../node_modules/@types/w3c-web-usb/index.d.ts" />
+import { Device, VENDOR_ID, PRODUCT_ID, Interface } from '@keepkey/core'
 import * as eventemitter3 from 'eventemitter3'
 import * as ByteBuffer from 'bytebuffer'
-import { VENDOR_ID, PRODUCT_ID } from '../utils'
-import { Device } from '../device'
 
 const { default: { concat, wrap } } = ByteBuffer as any
 const { default: EventEmitter } = eventemitter3 as any
 
 const SEGMENT_SIZE = 63
-
-export type WebUSBInterface = 'StandardWebUSB' | 'DebugWebUSB'
 
 export interface WebUSBDeviceConfig {
   usbDevice: USBDevice,
@@ -20,7 +17,7 @@ export class WebUSBDevice extends Device {
   public usbDevice: USBDevice
   public events: eventemitter3
 
-  protected interface: WebUSBInterface = 'StandardWebUSB'
+  protected interface: Interface = 'StandardWebUSB'
 
   public static async requestPair (): Promise<USBDevice> {
     if (!window.navigator.usb) {
@@ -40,6 +37,7 @@ export class WebUSBDevice extends Device {
   }
 
   public async initialize (): Promise<void> {
+    if(this.isInitialized) return
     await this.usbDevice.open()
     if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1)
     await this.usbDevice.claimInterface(0)

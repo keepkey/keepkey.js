@@ -1,5 +1,5 @@
 import { messageNameRegistry } from './typeRegistry'
-import { Interface } from './device'
+import { Interface } from './utils'
 
 export interface Event {
   message_type?: string

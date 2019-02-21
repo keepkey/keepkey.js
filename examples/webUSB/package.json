@@ -1,0 +1,16 @@
+{
+  "name": "webusb-example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "parcel index.html"
+  },
+  "dependencies": {
+    "@keepkey/webusb": "^2.0.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.11.0"
+  }
+}
