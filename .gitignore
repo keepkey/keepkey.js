@@ -13,3 +13,4 @@ docs
 example/js/vendor
 dist
 .rpt2_*
+.cache
