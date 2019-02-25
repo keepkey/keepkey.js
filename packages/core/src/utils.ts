@@ -10,8 +10,9 @@ export const PRODUCT_ID = 0x0002
 
 export type WebUSBInterface = 'StandardWebUSB' | 'DebugWebUSB'
 export type HIDInterface = 'StandardHID'
+export type ChromeInterface = 'StandardChromeUSB'
 
-export type Interface = WebUSBInterface | HIDInterface
+export type Interface = WebUSBInterface | HIDInterface | ChromeInterface
 
 export const EXIT_TYPES = [
   String(Messages.MessageType.MESSAGETYPE_CANCEL),

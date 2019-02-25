@@ -13,7 +13,9 @@
     ],
     "nohoist": [
       "**/@types/w3c-web-usb",
-      "**/@types/w3c-web-usb/**"
+      "**/@types/w3c-web-usb/**",
+      "**/@types/chrome",
+      "**/@types/chrome/**"
     ]
   },
   "scripts": {
