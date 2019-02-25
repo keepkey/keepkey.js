@@ -1,47 +1,47 @@
-/// <reference path="../node_modules/@types/w3c-web-usb/index.d.ts" />
+import { randomBytes } from 'crypto'
 import { Device, VENDOR_ID, PRODUCT_ID, Interface } from '@keepkey/core'
 import * as eventemitter3 from 'eventemitter3'
 import * as ByteBuffer from 'bytebuffer'
+import { Device as NodeHIDDevice, HID } from 'node-hid'
 
 const { default: { concat, wrap } } = ByteBuffer as any
 const { default: EventEmitter } = eventemitter3 as any
 
 const SEGMENT_SIZE = 63
 
-export interface WebUSBDeviceConfig {
-  usbDevice: USBDevice,
+export interface HIDDeviceConfig {
+  hidRef?: HID,
+  hidDevice: NodeHIDDevice,
   events?: eventemitter3
 }
 
-export class WebUSBDevice extends Device {
-  public usbDevice: USBDevice
+export class HIDDevice extends Device {
+  public hidRef: HID
+  public hidDevice: NodeHIDDevice
   public events: eventemitter3
 
-  protected interface: Interface = 'StandardWebUSB'
+  private bufferQueue: ByteBuffer[] = []
 
-  public static async requestPair (): Promise<USBDevice> {
-    if (!window.navigator.usb) {
-      throw new Error('WebUSB is not available in this browser. We recommend trying Chrome.')
-    }
-    return window.navigator.usb.requestDevice({ filters: [{ vendorId: VENDOR_ID, productId: PRODUCT_ID }] })
+  protected interface: Interface = 'StandardHID'
+
+  public static async requestPair (): Promise<HID> {
+    return new HID(VENDOR_ID, PRODUCT_ID)
   }
 
-  constructor (config: WebUSBDeviceConfig) {
+  constructor (config: HIDDeviceConfig) {
     super()
-    this.usbDevice = config.usbDevice
+    this.hidDevice = config.hidDevice
+    this.hidRef = config.hidRef || new HID(config.hidDevice.path)
     this.events = config.events || new EventEmitter()
   }
 
-  public get isInitialized (): boolean {
-    return this.usbDevice.opened
+  public get isOpened (): boolean {
+    return this.hidDevice.interface > -1
   }
 
-  public async initialize (): Promise<void> {
-    if(this.isInitialized) return
-    await this.usbDevice.open()
-    if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1)
-    await this.usbDevice.claimInterface(0)
-
+  public async open (): Promise<void> {
+    if(this.isOpened) return
+    this.hidRef.on('data', this.enqueueBuffer.bind(this))
     // Start reading data from usbDevice
     this.listen()
   }
@@ -49,14 +49,14 @@ export class WebUSBDevice extends Device {
   public async disconnect (): Promise<void> {
     try {
       // If the device is disconnected, this will fail and throw, which is fine.
-      await this.usbDevice.close()
+      await this.hidRef.close()
     } catch (e) {
       console.log('Disconnect Error (Ignored):', e)
     }
   }
 
   public getEntropy (length: number = 64): Uint8Array {
-    return window.crypto.getRandomValues(new Uint8Array(length))
+    return randomBytes(length)
   }
 
   protected async write (buff: ByteBuffer): Promise<void> {
@@ -74,46 +74,44 @@ export class WebUSBDevice extends Device {
   }
 
   protected async read (): Promise<ByteBuffer> {
-    let first = await this.readChunk()
+    if(!this.bufferQueue.length) return
+    let first = await this.bufferQueue.shift()
     console.log('read', first)
     // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
     // "?" = USB marker, "##" = KeepKey magic bytes
     // Message ID is bytes 4-5. Message length starts at byte 6.
-    const valid = (first.getUint32(0) & 0xffffff00) === 0x3f232300
-    const msgLength = first.getUint32(5)
+    const valid = (first.readUint32(0) & 0xffffff00) === 0x3f232300
+    const msgLength = first.readUint32(5)
     console.log('msgLength', msgLength)
     if (valid && msgLength >= 0) {
       // FIXME: why doesn't ByteBuffer.concat() work?
       const buffer = new Uint8Array(9 + 2 + msgLength)
-      for (let k = 0; k < first.byteLength; k++) {
-        buffer[k] = first.getUint8(k)
+      for (let k = 0; k < first.limit; k++) {
+        buffer[k] = first.readByte(k)
       }
-      let offset = first.byteLength
+      let offset = first.limit
 
       while (offset < buffer.length) {
-        const next = await this.readChunk()
+        const next = this.bufferQueue.shift()
         // Drop USB "?" packet identifier in the first byte
-        for (let k = 1; (k < next.byteLength && offset < buffer.length); k++) {
-          buffer[offset] = next.getUint8(k)
+        for (let k = 1; (k < next.limit && offset < buffer.length); k++) {
+          buffer[offset] = next.readByte(k)
           offset++
         }
       }
-
       return wrap(buffer)
     }
   }
 
-  private async writeChunk (buffer: ByteBuffer): Promise<USBOutTransferResult> {
-    return this.usbDevice.transferOut(1, buffer.toArrayBuffer())
+  private async writeChunk (buffer: ByteBuffer): Promise<number> {
+    const arr: number[] = new Array(buffer.limit).fill(undefined)
+    for (let i = buffer.offset; i < buffer.limit; i++) {
+      arr[i] = buffer.readByte(i)
+    }
+    return this.hidRef.write(arr)
   }
 
-  private async readChunk (): Promise<DataView> {
-    const result = await this.usbDevice.transferIn(1, SEGMENT_SIZE + 1)
-
-    if (result.status === 'stall') {
-      await this.usbDevice.clearHalt('out', 1)
-    }
-
-    return Promise.resolve(result.data)
+  private enqueueBuffer(data: number[]): void {
+    if(data.length) this.bufferQueue.push(wrap(data))
   }
 }

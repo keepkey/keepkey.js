@@ -17,7 +17,8 @@
     ]
   },
   "scripts": {
-    "dev:webusb": "lerna run dev --scope @keepkey/core --scope @keepkey/keepkey.js --scope @keepkey/webusb --scope webusb-example --parallel"
+    "build:webusb": "lerna run build --scope @keepkey/webusb --include-filtered-dependencies",
+    "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies"
   },
   "devDependencies": {
     "lerna": "^3.13.0",

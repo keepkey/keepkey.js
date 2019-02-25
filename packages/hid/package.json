@@ -1,5 +1,5 @@
 {
-  "name": "@keepkey/webusb",
+  "name": "@keepkey/hid",
   "version": "2.0.0",
   "license": "MIT",
   "publishConfig": {
@@ -10,20 +10,23 @@
   "umd:main": "dist/index.umd.js",
   "module": "dist/index.m.js",
   "scripts": {
-    "build": "microbundle --target=web --external=none --name=keepkeyWebUSB",
+    "build": "microbundle --name=keepkeyHID --external=crypto",
     "clean": "rm -rf dist .rts2_*",
-    "dev": "microbundle watch --target=web --external=none --name=keepkeyWebUSB --compress=false",
+    "dev": "microbundle watch --name=keepkeyHID --compress=false --external=crypto",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "@keepkey/core": "^2.0.0",
+    "@keepkey/keepkey.js": "^2.0.0",
     "bytebuffer": "^5.0.1",
-    "eventemitter3": "^3.1.0"
+    "eventemitter3": "^3.1.0",
+    "node-hid": "^0.7.7",
+    "usb-detection": "^4.1.0"
   },
   "devDependencies": {
     "@types/bytebuffer": "^5.0.40",
     "@types/eventemitter3": "^2.0.2",
-    "@types/w3c-web-usb": "^1.0.1",
+    "@types/node-hid": "^0.7.0",
     "microbundle": "^0.9.0"
   }
 }

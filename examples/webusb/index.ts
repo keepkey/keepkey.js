@@ -1,17 +1,23 @@
-console.log('!!!')
+
+import * as debug from 'debug'
+import { WebUSBKeyring } from '@keepkey/webusb'
+
 window.localStorage.debug = '*'
-// const loggers = {}
+const loggers: {[deviceID: string]: debug.Debugger} = {}
+
+const keyring = (<any>window).keyring = new WebUSBKeyring({
+  onConnectCallback: (deviceID) => {
+    console.log('Device Connected: ' + deviceID)
+    loggers[deviceID] = debug(deviceID)
+  },
+  onDisconnectCallback: (deviceID) => {
+    console.log('Device Disconnected: ' + deviceID)
+    delete loggers[deviceID]
+  }
+})
 
 // const manager = window.keepkeyManager = new window.keepkey.KeepKeyManager({
-//   onConnectCallback: (deviceID) => {
-//     console.log('Device Connected: ' + deviceID)
-//     loggers[deviceID] = window.debug(deviceID)
-//   },
-//   onDisconnectCallback: (deviceID) => {
-//     console.log('Device Disconnected: ' + deviceID)
-//     delete loggers[deviceID]
-//   }
-// })
+
 
 // window.connectWebUSB = function () {
 //   manager.initializeWebUSBDevices()

@@ -22,9 +22,9 @@ export abstract class Device {
 
   protected abstract interface: Interface
   public abstract events: eventemitter3
-  public abstract get isInitialized (): boolean
+  public abstract get isOpened (): boolean
 
-  public abstract initialize (): Promise<void>
+  public abstract open (): Promise<void>
   public abstract disconnect (): Promise<void>
   public abstract getEntropy (length: number): Uint8Array
 
@@ -32,7 +32,7 @@ export abstract class Device {
   protected abstract async read (): Promise<ByteBuffer>
 
   public async listen() {
-    while(this.isInitialized) {
+    while(this.isOpened) {
       try {
         const buf = await this.read()
         if(!buf) continue
@@ -81,7 +81,6 @@ export abstract class Device {
   }
 
   public exchange (msgTypeEnum: number, msg: Message, anticipatedEvents: string[] = []): Observable<void | {}> {
-    console.log(msgTypeEnum, msg)
     this.events.emit(String(msgTypeEnum), makeEvent({
       message_enum: msgTypeEnum,
       message: msg.toObject(),
