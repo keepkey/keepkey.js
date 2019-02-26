@@ -1,9 +1,10 @@
 import { randomBytes } from 'crypto'
 import { Device, VENDOR_ID, PRODUCT_ID, Interface } from '@keepkey/core'
-import * as eventemitter2 from 'eventemitter2'
+import  * as eventemitter2 from 'eventemitter2'
 import * as ByteBuffer from 'bytebuffer'
 import { Device as NodeHIDDevice, HID } from 'node-hid'
 
+const { default: EventEmitter2 } = eventemitter2 as any
 const { default: { concat, wrap } } = ByteBuffer as any
 
 const SEGMENT_SIZE = 63
@@ -31,7 +32,7 @@ export class HIDDevice extends Device {
     super()
     this.hidDevice = config.hidDevice
     this.hidRef = config.hidRef || new HID(config.hidDevice.path)
-    this.events = config.events || new eventemitter2.EventEmitter2()
+    this.events = config.events || new EventEmitter2()
   }
 
   public get isOpened (): boolean {

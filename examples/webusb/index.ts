@@ -36,7 +36,7 @@ $start.on('click', (e) => {
     .then(() => {
       console.log(`Found ${Object.keys(keyring.keepkeys).length} KeepKey(s)`)
       if (keyring.initializedCount) {
-        keepkey = (<any>window).keepkey = keyring.get()
+        keepkey = (window as any).keepkey = keyring.get()
         console.log('Putting first keepkey on window as window.keepkey: ', keepkey)
       }
       return keyring.exec('getFeatures')

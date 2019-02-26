@@ -1,8 +1,10 @@
 import { KeepKey } from './keepkey'
 import * as eventemitter2 from 'eventemitter2'
 
+const { default: EventEmitter2 } = eventemitter2 as any
+
 export abstract class Keyring {
-  public deviceEvents: eventemitter2.EventEmitter2 = new eventemitter2.EventEmitter2({ wildcard: true })
+  public deviceEvents: eventemitter2.EventEmitter2 = new EventEmitter2({ wildcard: true })
 
   public keepkeys: { [deviceID: string]: KeepKey } = {}
 

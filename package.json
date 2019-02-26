@@ -19,6 +19,7 @@
     ]
   },
   "scripts": {
+    "build:hid": "lerna run build --scope @keepkey/hid --include-filtered-dependencies",
     "build:webusb": "lerna run build --scope @keepkey/webusb --include-filtered-dependencies",
     "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies"
   },

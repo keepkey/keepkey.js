@@ -10,9 +10,9 @@
   "umd:main": "dist/index.umd.js",
   "module": "dist/index.m.js",
   "scripts": {
-    "build": "microbundle --name=keepkeyHID --external=crypto",
+    "build": "microbundle --name=keepkeyHID --external=crypto,events,util,os",
     "clean": "rm -rf dist .rts2_*",
-    "dev": "microbundle watch --name=keepkeyHID --compress=false --external=crypto",
+    "dev": "microbundle watch --name=keepkeyHID --compress=false --external=crypto,events,util,os",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
