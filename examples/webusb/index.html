@@ -27,9 +27,12 @@
     <div class="container">
       <h3>WebUSB</h3>
       <p>To seed the <code>window.keepkeyManager</code> with WebUSB devices, first pair a device, then click start.</p>
-      <button class="button button-outline" onclick="window.keepkey.WebUSBDevice.requestPair()">Pair WebUSB Device</button>
-      <button id='start' onclick="connectWebUSB()">START WEBUSB</button>
-      <button id='ping' onclick="ping()">PING</button>
+      <button id='pair' class="button button-outline">Pair WebUSB Device</button>
+      <button id='start'>START WEBUSB</button>
+      <button id='ping'>PING</button>
+      <button id='ping-with-button'>PING w/ BUTTON</button>
+      <button id='ping-with-pin'>PING w/ PIN</button>
+      <button id='cancel' class="button button-outline">CANCEL</button>
     </div>
   
   </div>

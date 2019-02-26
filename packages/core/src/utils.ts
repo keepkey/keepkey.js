@@ -1,7 +1,7 @@
 import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
-import * as eventemitter3 from 'eventemitter3'
+import * as eventemitter2 from 'eventemitter2'
 import { Observable, concat, fromEvent } from 'rxjs'
-import { take } from 'rxjs/operators'
+import { first } from 'rxjs/operators'
 
 const { default: Messages } = ProtoMessages as any // Conflict between typedef and actual js export
 
@@ -112,8 +112,8 @@ export function bip32Like (address: string): boolean {
   return address.slice(0, 2) === 'm/'
 }
 
-export function takeFirstOfManyEvents(eventEmitter: eventemitter3, events: string[]): Observable<{}> {
+export function takeFirstOfManyEvents(eventEmitter: eventemitter2.EventEmitter2, events: string[]): Observable<{}> {
   return concat(
-    ...events.map(event => fromEvent<Event>(eventEmitter, event))
-  ).pipe(take(1))
+    ...events.map(event => fromEvent<Event>(eventEmitter, event)),
+  ).pipe(first())
 }

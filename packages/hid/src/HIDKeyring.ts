@@ -31,8 +31,6 @@ export class HIDKeyring extends Keyring {
     this.usbDetect.startMonitoring()
     this.usbDetect.on(`add:${VENDOR_ID}:${PRODUCT_ID}`, this.handleConnectKeepKey.bind(this))
     this.usbDetect.on(`remove:${VENDOR_ID}:${PRODUCT_ID}`, this.handleDisconnectKeepKey.bind(this))
-
-    this.initialize(config)
   }
 
   public async initialize (config: KeepKeyManagerConfig = {}): Promise<number> {
@@ -45,7 +43,7 @@ export class HIDKeyring extends Keyring {
         await this.get(hidDevice.serialNumber).initialize()
       } else {
         console.log('keepkey not found, creating new')
-        let keepkey = new KeepKey({ autoButton: false, device: new HIDDevice({ hidDevice, events: this.deviceEvents }) })
+        let keepkey = new KeepKey({ autoButton: false, device: new HIDDevice({ hidDevice }) })
         const features = await keepkey.initialize()
         if (features) this.add(keepkey, hidDevice.serialNumber)
       }

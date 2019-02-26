@@ -1,24 +1,23 @@
 import { randomBytes } from 'crypto'
 import { Device, VENDOR_ID, PRODUCT_ID, Interface } from '@keepkey/core'
-import * as eventemitter3 from 'eventemitter3'
+import * as eventemitter2 from 'eventemitter2'
 import * as ByteBuffer from 'bytebuffer'
 import { Device as NodeHIDDevice, HID } from 'node-hid'
 
 const { default: { concat, wrap } } = ByteBuffer as any
-const { default: EventEmitter } = eventemitter3 as any
 
 const SEGMENT_SIZE = 63
 
 export interface HIDDeviceConfig {
   hidRef?: HID,
   hidDevice: NodeHIDDevice,
-  events?: eventemitter3
+  events?: eventemitter2.EventEmitter2
 }
 
 export class HIDDevice extends Device {
   public hidRef: HID
   public hidDevice: NodeHIDDevice
-  public events: eventemitter3
+  public events: eventemitter2.EventEmitter2
 
   private bufferQueue: ByteBuffer[] = []
 
@@ -32,7 +31,7 @@ export class HIDDevice extends Device {
     super()
     this.hidDevice = config.hidDevice
     this.hidRef = config.hidRef || new HID(config.hidDevice.path)
-    this.events = config.events || new EventEmitter()
+    this.events = config.events || new eventemitter2.EventEmitter2()
   }
 
   public get isOpened (): boolean {

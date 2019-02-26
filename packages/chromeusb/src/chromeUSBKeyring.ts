@@ -25,8 +25,6 @@ export class ChromeUSBKeyring extends Keyring {
       window.navigator.usb.onconnect = this.handleConnectKeepKey.bind(this)
       window.navigator.usb.ondisconnect = this.handleDisconnectKeepKey.bind(this)
     }
-
-    this.initialize(config)
   }
 
   public async initialize (config: KeepKeyManagerConfig = {}): Promise<number> {
@@ -41,7 +39,7 @@ export class ChromeUSBKeyring extends Keyring {
         await this.get(usbDevice.serialNumber).initialize()
       } else {
         console.log('keepkey not found, creating new')
-        let keepkey = new KeepKey({ autoButton: false, device: new ChromeUSBDevice({ usbDevice, events: this.deviceEvents }) })
+        let keepkey = new KeepKey({ autoButton: false, device: new ChromeUSBDevice({ usbDevice }) })
         const features = await keepkey.initialize()
         if (features) this.add(keepkey, usbDevice.serialNumber)
       }

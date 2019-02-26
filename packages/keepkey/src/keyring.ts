@@ -1,10 +1,8 @@
 import { KeepKey } from './keepkey'
-import * as eventemitter3 from 'eventemitter3'
-
-const { default: EventEmitter } = eventemitter3 as any
+import * as eventemitter2 from 'eventemitter2'
 
 export abstract class Keyring {
-  public deviceEvents: eventemitter3 = new EventEmitter()
+  public deviceEvents: eventemitter2.EventEmitter2 = new eventemitter2.EventEmitter2({ wildcard: true })
 
   public keepkeys: { [deviceID: string]: KeepKey } = {}
 
@@ -18,7 +16,7 @@ export abstract class Keyring {
     const id = deviceID || keepkey.features.deviceId
     if (!(this.keepkeys[id])) {
       this.keepkeys[id] = keepkey
-      // this.decorateEvents(deviceID, keepkey.device.events)
+      this.decorateEvents(deviceID, keepkey.device.events)
       return true
     }
     return false
@@ -62,5 +60,9 @@ export abstract class Keyring {
     Object.values(this.keepkeys).forEach(k => {
       k.device.disconnect().catch(console.log)
     })
+  }
+
+  public decorateEvents (deviceID: string, events: eventemitter2.EventEmitter2): void {
+    events.onAny((e: string, ...values: any[]) => this.deviceEvents.emit([e, deviceID], [deviceID, ...values]))
   }
 }

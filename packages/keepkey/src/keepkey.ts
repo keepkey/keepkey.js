@@ -1,6 +1,8 @@
 import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
 import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
 import * as ProtoExchange from '@keepkey/device-protocol/lib/exchange_pb'
+import { of } from 'rxjs'
+import { delay } from 'rxjs/operators'
 import { Device, Event, EXIT_TYPES, messageTypeRegistry, fromHexString, toHexString, arrayify, protoFieldToSetMethod, bip32ToAddressNList } from '@keepkey/core'
 
 const { default: Messages } = ProtoMessages as any // Conflict between typedef and actual js export
@@ -125,11 +127,15 @@ export class KeepKey {
   //   await this.device.exchange(Messages.MessageType.MESSAGETYPE_APPLYSETTINGS, applySettings)
   // }
 
-  // // Cancel aborts the last device action that required user interaction
-  // // It can follow a button request, passphrase request, or pin request
-  // public async cancel (): Promise<void> {
-  //   this.device.events.emit('CANCEL_ACTION')
-  // }
+  // Cancel aborts the last device action that required user interaction
+  // It can follow a button request, passphrase request, or pin request
+  public async cancel (): Promise<void> {
+    const cancel = new Messages.Cancel()
+    await this.device.exchange(
+      Messages.MessageType.MESSAGETYPE_CANCEL,
+      cancel
+    ).toPromise() as Event
+  }
 
   //  // ChangePin requests setting/changing the pin
   // public async changePin (): Promise<void> {
@@ -291,7 +297,7 @@ export class KeepKey {
   // Initialize assigns a hid connection to this KeepKey and send initialize message to device
   public async initialize (): Promise<ProtoMessages.Features.AsObject | void> {
     console.log('this.device', this.device)
-    await this.device.initialize()
+    await this.device.open()
     // send initialize
     const initialize = new Messages.Initialize()
     const event = await this.device.exchange(
@@ -318,12 +324,16 @@ export class KeepKey {
   //   return msg.address
   // }
 
-  // // GetFeatures returns the features and other device information such as the version, label, and supported coins
-  // public async getFeatures (): Promise<ProtoMessages.Features.AsObject> {
-  //   const features = new Messages.GetFeatures()
-  //   const [_, response] = await this.device.exchange(Messages.MessageType.MESSAGETYPE_GETFEATURES, features)
-  //   return (response as ProtoMessages.Features).toObject()
-  // }
+  // GetFeatures returns the features and other device information such as the version, label, and supported coins
+  public async getFeatures (): Promise<ProtoMessages.Features.AsObject> {
+    const features = new Messages.GetFeatures()
+    const event = await this.device.exchange(
+      Messages.MessageType.MESSAGETYPE_GETFEATURES,
+      features,
+      [ String(Messages.MessageType.MESSAGETYPE_FEATURES), ...EXIT_TYPES]
+    ).toPromise() as Event
+    return event.message as ProtoMessages.Features.AsObject
+  }
 
   // // GetEntropy requests sample data from the hardware RNG
   // public async getEntropy (size: number): Promise<string | Uint8Array> {
@@ -443,10 +453,13 @@ export class KeepKey {
     const event = await this.device.exchange(
       Messages.MessageType.MESSAGETYPE_PING,
       ping,
-      [ String(Messages.MessageType.MESSAGETYPE_SUCCESS), ...EXIT_TYPES]
+      [
+        String(Messages.MessageType.MESSAGETYPE_SUCCESS),
+        ...EXIT_TYPES
+      ],
+      5000
     ).toPromise() as Event
     if(!event) throw new Error('')
-    console.log('!!!!!', event)
     return event.message as string
   }
 

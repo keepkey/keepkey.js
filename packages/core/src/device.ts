@@ -1,8 +1,8 @@
-import * as eventemitter3 from 'eventemitter3'
+import * as eventemitter2 from 'eventemitter2'
 import { Message, BinaryReader } from 'google-protobuf'
 import * as ByteBuffer from 'bytebuffer'
 import { Observable, concat, from, of } from 'rxjs'
-import { delay } from 'rxjs/operators'
+import { timeout } from 'rxjs/operators'
 import RxSingletonLock from 'rx-singleton-lock'
 
 import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
@@ -21,7 +21,7 @@ export abstract class Device {
   protected lock: RxSingletonLock = new RxSingletonLock()
 
   protected abstract interface: Interface
-  public abstract events: eventemitter3
+  public abstract events: eventemitter2.EventEmitter2
   public abstract get isOpened (): boolean
 
   public abstract open (): Promise<void>
@@ -80,7 +80,7 @@ export abstract class Device {
     }
   }
 
-  public exchange (msgTypeEnum: number, msg: Message, anticipatedEvents: string[] = []): Observable<void | {}> {
+  public exchange (msgTypeEnum: number, msg: Message, anticipatedEvents: string[] = [], msTimeout?: number): Observable<void | {}> {
     this.events.emit(String(msgTypeEnum), makeEvent({
       message_enum: msgTypeEnum,
       message: msg.toObject(),
@@ -90,7 +90,9 @@ export abstract class Device {
     return this.lock.singleton(
       concat(
         from(this.write(this.toMessageBuffer(msgTypeEnum, msg))),
-        takeFirstOfManyEvents(this.events, anticipatedEvents)
+        msTimeout
+        ? takeFirstOfManyEvents(this.events, anticipatedEvents).pipe(timeout(msTimeout))
+        : takeFirstOfManyEvents(this.events, anticipatedEvents)
       )
     )
   }

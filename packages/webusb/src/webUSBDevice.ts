@@ -1,21 +1,20 @@
 /// <reference path="../node_modules/@types/w3c-web-usb/index.d.ts" />
 import { Device, VENDOR_ID, PRODUCT_ID, Interface } from '@keepkey/core'
-import * as eventemitter3 from 'eventemitter3'
+import * as eventemitter2 from 'eventemitter2'
 import * as ByteBuffer from 'bytebuffer'
 
 const { default: { concat, wrap } } = ByteBuffer as any
-const { default: EventEmitter } = eventemitter3 as any
 
 const SEGMENT_SIZE = 63
 
 export interface WebUSBDeviceConfig {
   usbDevice: USBDevice,
-  events?: eventemitter3
+  events?: eventemitter2.EventEmitter2
 }
 
 export class WebUSBDevice extends Device {
   public usbDevice: USBDevice
-  public events: eventemitter3
+  public events: eventemitter2.EventEmitter2
 
   protected interface: Interface = 'StandardWebUSB'
 
@@ -29,7 +28,7 @@ export class WebUSBDevice extends Device {
   constructor (config: WebUSBDeviceConfig) {
     super()
     this.usbDevice = config.usbDevice
-    this.events = config.events || new EventEmitter()
+    this.events = config.events || new eventemitter2.EventEmitter2()
   }
 
   public get isOpened (): boolean {
