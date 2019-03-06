@@ -189,7 +189,7 @@ window.k.recoveryDevice({
 })
 ```
 
-At this point, KeepKey will display a one-time-pad alphebet cipher.
+At this point, KeepKey will display a one-time-pad alphabet cipher.
 Using the cipher displayed on KeepKey's screen to translate characters,
 input the seed word character sequence. Note that the cipher will mutate
 after each character is input.
