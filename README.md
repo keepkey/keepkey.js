@@ -241,4 +241,3 @@ When developing with WebUSB devices, you'll need an `https` connection, and conf
 To compile and watch the browser bundle, run `yarn dev:example`
 
 Then, `cd example`, and `python server.py` to run a server with ssl that runs on  `localhost:8888`
-`
