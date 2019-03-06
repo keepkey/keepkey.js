@@ -189,7 +189,7 @@ window.k.recoveryDevice({
 })
 ```
 
-At this point, KeepKey will display a one-time-pad alphebet cipher.
+At this point, KeepKey will display a one-time-pad alphabet cipher.
 Using the cipher displayed on KeepKey's screen to translate characters,
 input the seed word character sequence. Note that the cipher will mutate
 after each character is input.
@@ -241,4 +241,3 @@ When developing with WebUSB devices, you'll need an `https` connection, and conf
 To compile and watch the browser bundle, run `yarn dev:example`
 
 Then, `cd example`, and `python server.py` to run a server with ssl that runs on  `localhost:8888`
-`
