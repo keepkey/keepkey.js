@@ -1,0 +1,53 @@
+digraph D {
+  rankdir = BT;
+
+  subgraph cluster_0 {
+    label = "API"
+    color = "blue";
+
+    HDWallet [shape=box, label="hdwallet"];
+    Keyring [shape=box, label="keyring"];
+  }
+
+  subgraph cluster_1 {
+    label = "KeepKey";
+    color = "blue";
+
+    KKCore [shape=box, label="keepkey-core"];
+    KK [shape=box, label="keepkey-device"];
+    KKHid [shape=box, label="keepkey-hid"];
+    KKWebUsb [shape=box, label="keepkey-webusb"];
+    KKChromeUsb [shape=box, label="keepkey-chromeusb"];
+    KKHDWallet [shape=box, label="hdwallet-keepkey"];
+
+    KKHid -> KK;
+    KKWebUsb -> KK;
+    KKChromeUsb -> KK;
+    KK -> KKCore;
+
+    KKCore -> KKHDWallet;
+    KKHDWallet -> HDWallet;
+  }
+
+  subgraph cluster_2 {
+    label = "Trezor";
+    color = "blue";
+
+    TrezorConnect [shape=oval, label="TrezorConnect"];
+    TrezorHDWallet [shape=box, label="hdwallet-trezor"];
+
+    TrezorConnect -> TrezorHDWallet;
+    TrezorHDWallet -> HDWallet;
+  }
+
+  subgraph cluster_3 {
+    label = "Ledger";
+    color = "blue";
+
+    Ledger [shape=oval, label="Ledger"];
+    LedgerHDWallet [shape=box, label="hdwallet-ledger"];
+
+    Ledger -> LedgerHDWallet;
+    LedgerHDWallet -> HDWallet;
+  }
+}

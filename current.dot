@@ -1,0 +1,13 @@
+digraph D {
+  rankdir = BT;
+  Core [shape=box, label="core"];
+  KK [shape=box, label="keepkey"];
+  KKHid [shape=box, label="hid"];
+  KKWebUsb [shape=box, label="webusb"];
+  KKChromeUsb [shape=box, label="chromeusb"];
+
+  KKHid -> KK;
+  KKWebUsb -> KK;
+  KKChromeUsb -> KK;
+  KK -> Core;
+}
