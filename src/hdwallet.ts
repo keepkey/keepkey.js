@@ -70,6 +70,10 @@ export interface PublicKey {
 }
 
 export abstract class HDWallet implements WalletSupport {
+  public abstract async getVendor (): Promise<String>
+
+  public abstract async getModel (): Promise<String>
+
   public abstract async getPublicKey (msg: GetPublicKey);
 
   public abstract async clearSession (): Promise<void>;
@@ -86,6 +90,14 @@ export abstract class HDWallet implements WalletSupport {
 
 class KeepKeyHDWallet implements HDWallet, EthereumWallet, BitcoinWallet {
   private impl: KeepKey
+
+  public abstract async getVendor (): Promise<String> {
+    return "keepkey.com"
+  }
+
+  public abstract async getModel (): Promise<String> {
+    return "KeepKey"
+  }
 
   public async getPublicKey (msg: GetPublicKey): Promise<PublicKey> {
     const script = {
