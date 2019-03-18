@@ -8,7 +8,10 @@ export interface EthereumSignTx {
 
 }
 
-export interface EthereumWallet {
+export abstract class EthereumWallet {
+  public static isSupported(wallet: HDWallet): Promise<boolean> {
+    return wallet.ethereumIsSupported()
+  }
   public async ethereumIsSupported (): Promise<boolean> {
     return true
   }
@@ -29,7 +32,10 @@ export interface BitcoinSignedTx {
   // ...
 }
 
-export interface BitcoinWallet {
+export abstract class BitcoinWallet {
+  public static isSupported(wallet: HDWallet): Promise<boolean> {
+    return wallet.bitcoinIsSupported()
+  }
   public async bitcoinIsSupported (): Promise<boolean> {
     return true
   }
@@ -65,6 +71,15 @@ export abstract class HDWallet {
   public abstract async ethereumIsSupported (): Promise<boolean>
 
   public abstract async bitcoinIsSupported (): Promise<boolean>
+
+  // Intended to be used like:
+  //
+  // if (var b = keepkey.asWallet<BitcoinWallet>()) {
+  //   b.bitcoinGetAddress()
+  // }
+  public async asWallet<T> (): Promise<T | null> {
+    return T.isSupported(this) ? this as T : null
+  }
 }
 
 class KeepKeyHDWallet implements HDWallet, EthereumWallet, BitcoinWallet {
