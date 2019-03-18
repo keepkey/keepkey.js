@@ -78,18 +78,20 @@ export abstract class BitcoinWallet implements WalletSupport {
   public abstract async bitcoinGetAddress (msg: BitcoinGetAddress): Promise<BitcoinAddress>
   public abstract async bitcoinSignTx (msg: BitcoinSignTx): Promise<BitcoinSignedTx>
 
-  // Returns a list of bip32 paths for a given account index in preferred order
-  // from most to least preferred.
-  //
-  // For forked coins, eg. BSV, this would return:
-  //   p2pkh m/44'/236'/a'
-  //   p2pkh m/44'/230'/a'
-  //   p2pkh m/44'/0'/a'
-  //
-  // For BTC it might return:
-  //   p2sh-p2pkh m/49'/0'/a'
-  //   p2pkh      m/44'/0'/a'
-  //   p2sh-p2wsh m/44'/0'/a'
+  /**
+   * Returns a list of bip32 paths for a given account index in preferred order
+   * from most to least preferred.
+   *
+   * For forked coins, eg. BSV, this would return:
+   *   p2pkh m/44'/236'/a'
+   *   p2pkh m/44'/230'/a'
+   *   p2pkh m/44'/0'/a'
+   *
+   * For BTC it might return:
+   *   p2sh-p2pkh m/49'/0'/a'
+   *   p2pkh      m/44'/0'/a'
+   *   p2sh-p2wsh m/44'/0'/a'
+   */
   public abstract bitcoinGetAccountPaths (msg: BitcoinGetAccountPaths): Array<BitcoinAccountPath>
 
   // Does the device support spending from the combined accounts?
@@ -117,11 +119,15 @@ export abstract class HDWallet implements WalletSupport {
 
   public abstract async clearSession (): Promise<void>;
 
-  // Intended to be used like:
-  //
-  // if (var b = keepkey.castOrNull<BitcoinWallet>()) {
-  //   b.bitcoinGetAddress()
-  // }
+  /**
+   * Intended to be used like:
+   *
+   * ```typescript
+   * if (var b = keepkey.castOrNull<BitcoinWallet>()) {
+   *   b.bitcoinGetAddress()
+   * }
+   * ```
+   */
   public async castOrNull<T extends WalletSupport> (): Promise<T | null> {
     return T.isSupported(this) ? this as T : null
   }
