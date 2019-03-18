@@ -9,6 +9,9 @@ export interface EthereumSignTx {
 }
 
 export interface EthereumWallet {
+  public async ethereumIsSupported (): Promise<boolean> {
+    return true
+  }
   public abstract async ethereumGetAddress (msg: EthereumGetAddress);
   public abstract async ethereumSignTx (msg: EthereumSignTx);
 }
@@ -27,6 +30,9 @@ export interface BitcoinSignedTx {
 }
 
 export interface BitcoinWallet {
+  public async bitcoinIsSupported (): Promise<boolean> {
+    return true
+  }
   public abstract async bitcoinGetAddress (msg: BitcoinGetAddress): Promise<BitcoinAddress>
   public abstract async bitcoinSignTx (msg: BitcoinSignTx): Promise<BitcoinSignedTx>
 }
@@ -55,6 +61,10 @@ export abstract class HDWallet {
   public abstract async getPublicKey (msg: GetPublicKey);
 
   public abstract async clearSession (): Promise<void>;
+
+  public abstract async ethereumIsSupported (): Promise<boolean>
+
+  public abstract async bitcoinIsSupported (): Promise<boolean>
 }
 
 class KeepKeyHDWallet implements HDWallet, EthereumWallet, BitcoinWallet {
