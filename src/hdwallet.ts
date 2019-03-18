@@ -1,4 +1,10 @@
 
+export abstract class WalletSupport {
+  public abstract async ethereumIsSupported (): Promise<boolean>
+
+  public abstract async bitcoinIsSupported (): Promise<boolean>
+}
+
 export interface EthereumGetAddress {
   addressNList: Array<number>,
   showDisplay?: boolean
@@ -9,7 +15,7 @@ export interface EthereumSignTx {
 }
 
 export abstract class EthereumWallet {
-  public static isSupported(wallet: HDWallet): Promise<boolean> {
+  public static isSupported(wallet: WalletSupport): Promise<boolean> {
     return wallet.ethereumIsSupported()
   }
   public async ethereumIsSupported (): Promise<boolean> {
@@ -32,8 +38,8 @@ export interface BitcoinSignedTx {
   // ...
 }
 
-export abstract class BitcoinWallet {
-  public static isSupported(wallet: HDWallet): Promise<boolean> {
+export abstract class BitcoinWallet implements WalletSupport {
+  public static isSupported(wallet: WalletSupport): Promise<boolean> {
     return wallet.bitcoinIsSupported()
   }
   public async bitcoinIsSupported (): Promise<boolean> {
@@ -63,21 +69,17 @@ export interface PublicKey {
   xpub: String
 }
 
-export abstract class HDWallet {
+export abstract class HDWallet implements WalletSupport {
   public abstract async getPublicKey (msg: GetPublicKey);
 
   public abstract async clearSession (): Promise<void>;
 
-  public abstract async ethereumIsSupported (): Promise<boolean>
-
-  public abstract async bitcoinIsSupported (): Promise<boolean>
-
   // Intended to be used like:
   //
-  // if (var b = keepkey.asWallet<BitcoinWallet>()) {
+  // if (var b = keepkey.castOrNull<BitcoinWallet>()) {
   //   b.bitcoinGetAddress()
   // }
-  public async asWallet<T> (): Promise<T | null> {
+  public async castOrNull<T> (): Promise<T | null> {
     return T.isSupported(this) ? this as T : null
   }
 }
