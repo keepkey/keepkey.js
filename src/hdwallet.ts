@@ -33,7 +33,11 @@ export abstract class EthereumWallet {
   public abstract async ethereumGetAddress (msg: EthereumGetAddress);
   public abstract async ethereumSignTx (msg: EthereumSignTx);
 
-  public abstract ethereumGetAccountPaths (msg: EthereumGetAccountPaths): Array<EthereumAccountPaths>;
+  /**
+   * Returns a list of bip32 paths for a given account index in preferred order
+   * from most to least preferred.
+   */
+  public abstract ethereumGetAccountPaths (msg: EthereumGetAccountPaths): Array<EthereumGetAccountPaths>;
 }
 
 export interface BitcoinGetAddress {
@@ -192,7 +196,7 @@ class KeepKeyHDWallet implements HDWallet, EthereumWallet, BitcoinWallet {
 
   }
 
-  public ethereumGetAccountPaths (msg: EthereumAccountPaths): Array<EthereumAccountPath> {
+  public ethereumGetAccountPaths (msg: EthereumGetAccountPaths): Array<EthereumAccountPath> {
     const slip44 = 60 // FIXME, assumes ETH
     const ret: Array<EthereumAccountPath> = []
     ret.append({ addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0 ] })
