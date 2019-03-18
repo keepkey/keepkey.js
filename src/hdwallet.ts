@@ -122,7 +122,7 @@ export abstract class HDWallet implements WalletSupport {
   // if (var b = keepkey.castOrNull<BitcoinWallet>()) {
   //   b.bitcoinGetAddress()
   // }
-  public async castOrNull<T> (): Promise<T | null> {
+  public async castOrNull<T extends WalletSupport> (): Promise<T | null> {
     return T.isSupported(this) ? this as T : null
   }
 }
