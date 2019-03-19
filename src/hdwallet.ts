@@ -1,10 +1,3 @@
-
-export abstract class WalletSupport {
-  public abstract async ethereumIsSupported (): Promise<boolean>
-
-  public abstract async bitcoinIsSupported (): Promise<boolean>
-}
-
 export interface EthereumGetAccountPaths {
   coin: string,
   accountIdx: number
@@ -24,13 +17,7 @@ export interface EthereumSignTx {
 }
 
 export abstract class EthereumWallet {
-  public static isSupported(wallet: WalletSupport): Promise<boolean> {
-    return wallet.ethereumIsSupported()
-  }
-  public async ethereumIsSupported (): Promise<boolean> {
-    return true
-  }
-  public abstract async ethereumGetAddress (msg: EthereumGetAddress);
+  public abstract async ethereumGetAddress (msg: EthereumGetAddress): Promise<string>;
   public abstract async ethereumSignTx (msg: EthereumSignTx);
 
   /**
@@ -72,14 +59,8 @@ export interface BitcoinAccountPath {
   addressNList: Array<number>
 }
 
-export abstract class BitcoinWallet implements WalletSupport {
-  public static isSupported(wallet: WalletSupport): Promise<boolean> {
-    return wallet.bitcoinIsSupported()
-  }
-  public async bitcoinIsSupported (): Promise<boolean> {
-    return true
-  }
-  public abstract async bitcoinGetAddress (msg: BitcoinGetAddress): Promise<BitcoinAddress>
+export abstract class BitcoinWallet {
+  public abstract async bitcoinGetAddress (msg: BitcoinGetAddress): Promise<string>
   public abstract async bitcoinSignTx (msg: BitcoinSignTx): Promise<BitcoinSignedTx>
 
   /**
@@ -114,7 +95,7 @@ export interface PublicKey {
   xpub: string
 }
 
-export abstract class HDWallet implements WalletSupport {
+export abstract class HDWallet {
   public abstract async getVendor (): Promise<string>
 
   public abstract async getModel (): Promise<string>
@@ -123,28 +104,63 @@ export abstract class HDWallet implements WalletSupport {
 
   public abstract async clearSession (): Promise<void>;
 
-  /**
-   * Intended to be used like:
-   *
-   * ```typescript
-   * if (var b = keepkey.castOrNull<BitcoinWallet>()) {
-   *   b.bitcoinGetAddress()
-   * }
-   * ```
-   */
-  public async castOrNull<T extends WalletSupport> (): Promise<T | null> {
-    return T.isSupported(this) ? this as T : null
+  public abstract bitcoinIsSupported (): boolean
+  public abstract bitcoin (): BitcoinWallet | null
+
+  public abstract ethereumIsSupported (): boolean
+  public abstract ethereum (): EthereumWallet | null
+}
+
+class KeepKeyBitcoinWallet extends BitcoinWallet {
+  public async bitcoinGetAddress (msg: BitcoinGetAddress): Promise<BitcoinAddress> {
+
+  }
+
+  public async bitcoinSignTx (msg: BitcoinSignTx): Promise<BitcoinSignedTx> {
+
+  }
+
+  public bitcoinGetAccountPaths (msg: BitcoinGetAccountPaths): Array<BitcoinAccountPath> {
+    const slip44 = 0 // FIXME, assumes BTC
+    const ret: Array<BitcoinAccountPath> = []
+    ret.append({ addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ], scriptType: IST_SpendAddress })
+    ret.append({ addressNList: [ 0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ], scriptType: IST_SpendP2SHWitness })
+    ret.append({ addressNList: [ 0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ], scriptType: IST_SpendWitness })
+    return ret
+  }
+
+  public bitcoinIsSameAccount (msg: Array<BitcoinAccountPath>): boolean {
+    // FIXME
+    return true
   }
 }
 
-class KeepKeyHDWallet implements HDWallet, EthereumWallet, BitcoinWallet {
-  private impl: KeepKey
+class KeepKeyEthereumWallet extends EthereumWallet {
+  public async ethereumGetAddress (msg: EthereumGetAddress) {
 
-  public abstract async getVendor (): Promise<string> {
+  }
+
+  public async ethereumSignTx (msg: EthereumSignTx) {
+
+  }
+
+  public ethereumGetAccountPaths (msg: EthereumGetAccountPaths): Array<EthereumAccountPath> {
+    const slip44 = 60 // FIXME, assumes ETH
+    const ret: Array<EthereumAccountPath> = []
+    ret.append({ addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0 ] })
+    return ret
+  }
+}
+
+class KeepKeyHDWallet implements HDWallet {
+  private impl: KeepKey
+  private bitcoin_wallet: KeepKeyBitcoinWallet
+
+  public async getVendor (): Promise<string> {
     return "keepkey.com"
   }
 
-  public abstract async getModel (): Promise<string> {
+  public async getModel (): Promise<string> {
     return "KeepKey"
   }
 
@@ -171,36 +187,20 @@ class KeepKeyHDWallet implements HDWallet, EthereumWallet, BitcoinWallet {
     }
   }
 
-  public async bitcoinGetAddress (msg: BitcoinGetAddress): Promise<BitcoinAddress> {
-
+  public bitcoinIsSupported (): boolean {
+    return true
   }
 
-  public async bitcoinSignTx (msg: BitcoinSignTx): Promise<BitcoinSignedTx> {
-
+  public bitcoin (): BitcoinWallet | null {
+    return this.bitcoin_wallet
   }
 
-  public bitcoinGetAccountPaths (msg: BitcoinGetAccountPaths): Array<BitcoinAccountPath> {
-    const slip44 = 0 // FIXME, assumes BTC
-    const ret: Array<BitcoinAccountPath> = []
-    ret.append({ addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ], scriptType: IST_SpendAddress })
-    ret.append({ addressNList: [ 0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ], scriptType: IST_SpendP2SHWitness })
-    ret.append({ addressNList: [ 0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ], scriptType: IST_SpendWitness })
-    return ret
+  public ethereumIsSupported (): boolean {
+    return true
   }
 
-  public async ethereumGetAddress (msg: EthereumGetAddress) {
-
-  }
-
-  public async ethereumSignTx (msg: EthereumSignTx) {
-
-  }
-
-  public ethereumGetAccountPaths (msg: EthereumGetAccountPaths): Array<EthereumAccountPath> {
-    const slip44 = 60 // FIXME, assumes ETH
-    const ret: Array<EthereumAccountPath> = []
-    ret.append({ addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0 ] })
-    return ret
+  public ethereum (): EthereumWallet | null {
+    return this.ethereum_wallet
   }
 
   public async clearSession (): Promise<void> {
