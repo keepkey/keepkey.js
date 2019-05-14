@@ -23,7 +23,19 @@ export default class WebUSBDevice extends Device {
     if (!window.navigator.usb) {
       throw new Error('WebUSB is not available in this browser. We recommend trying Chrome.')
     }
-    return window.navigator.usb.requestDevice({ filters: [{ vendorId: 0x2b24, productId: 0x0002 }] })
+
+    let device = await window.navigator.usb.requestDevice({
+      filters: [{
+        vendorId: 0x2b24, productId: 0x0002 // WebUSB
+      }, {
+        vendorId: 0x2b24, productId: 0x0001 // HID
+      }]
+    })
+
+    if (device.productId === 1)
+      throw new Error("Firmware v6.1.0 or later is required to use your keepkey with this client. Please update your device.")
+
+    return device
   }
 
   constructor (config: WebUSBDeviceConfig) {
