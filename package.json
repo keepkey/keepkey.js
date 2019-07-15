@@ -97,10 +97,14 @@
     ]
   },
   "dependencies": {
+    "bl": "0.9.5",
     "bytebuffer": "git+https://git@github.com/spiceboi/bytebuffer.js.git",
     "device-protocol": "git+https://git@github.com/KeepKey/device-protocol.git#188c3a8edfaea6212e4260a133d539eb43dae00e",
     "eventemitter2": "^5.0.1",
     "google-protobuf": "^3.6.1",
+    "handlebars": "4.1.0",
+    "js-yaml": "3.13.1",
+    "marked": "0.6.1",
     "p-queue": "^3.0.0",
     "protobufjs": "^6.8.8",
     "rxjs": "^6.3.3"
