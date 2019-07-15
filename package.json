@@ -123,6 +123,7 @@
     "husky": "^1.0.1",
     "jest": "^23.6.0",
     "jest-config": "^23.6.0",
+    "lodash": "4.17.13",
     "lodash.camelcase": "^4.3.0",
     "prompt": "^1.0.0",
     "replace-in-file": "^3.4.2",
